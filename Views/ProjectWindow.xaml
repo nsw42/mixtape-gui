@@ -11,10 +11,24 @@
       <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
-    <Canvas Grid.Column="0" Background="Red"/>
+
+    <!-- Left column: the list of files -->
+    <DockPanel Grid.Column="0" VerticalAlignment="Stretch">
+      <!-- bg {DynamicResource SystemAccentColorDark1} -->
+      <Border DockPanel.Dock="Bottom"
+              Background="Blue" Padding="16"
+              DragDrop.AllowDrop="True">
+        <TextBlock HorizontalAlignment="Center" Name="FileDropArea">Add file(s)</TextBlock>
+      </Border>
+
+      <Canvas Background="Red" DockPanel.Dock="Top"/>  <!-- LastChildFill=True so this expands -->
+    </DockPanel>
+
     <GridSplitter HorizontalAlignment="Right"
                   VerticalAlignment="Stretch"
                   Grid.Column="1"  Width="5" Background="Transparent" />
+
+    <!-- Right column: the playlist -->
     <Canvas Grid.Column="2" Background="Green"/>
   </Grid>
 </Window>
