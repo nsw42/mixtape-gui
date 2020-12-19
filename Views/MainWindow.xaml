@@ -12,6 +12,9 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <StackPanel>
+        <Button Width="200" Command="{Binding CreateNewProjectCommand}">Create new project</Button>
+        <Button Width="200" Command="{Binding OpenExistingProjectCommand}">Open existing project</Button>
+    </StackPanel>
 
 </Window>
