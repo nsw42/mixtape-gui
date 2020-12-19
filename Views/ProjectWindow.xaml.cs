@@ -1,9 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using playlist_editor.Models;
+using PlaylistEditor.Models;
 
-namespace playlist_editor.Views
+namespace PlaylistEditor.Views
 {
     public class ProjectWindow : Window
     {

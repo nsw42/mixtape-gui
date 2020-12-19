@@ -1,4 +1,4 @@
-namespace playlist_editor.Models
+namespace PlaylistEditor.Models
 {
     public class MusicFile
     {

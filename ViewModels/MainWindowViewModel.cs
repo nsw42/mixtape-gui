@@ -6,10 +6,10 @@ using ReactiveUI;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using playlist_editor.Models;
-using playlist_editor.Views;
+using PlaylistEditor.Models;
+using PlaylistEditor.Views;
 
-namespace playlist_editor.ViewModels
+namespace PlaylistEditor.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {

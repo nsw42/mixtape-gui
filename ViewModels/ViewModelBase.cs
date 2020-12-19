@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using ReactiveUI;
 
-namespace playlist_editor.ViewModels
+namespace PlaylistEditor.ViewModels
 {
     public class ViewModelBase : ReactiveObject
     {

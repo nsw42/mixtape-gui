@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace playlist_editor.Models
+namespace PlaylistEditor.Models
 {
     public class Project
     {

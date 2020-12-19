@@ -1,10 +1,10 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using playlist_editor.ViewModels;
-using playlist_editor.Views;
+using PlaylistEditor.ViewModels;
+using PlaylistEditor.Views;
 
-namespace playlist_editor
+namespace PlaylistEditor
 {
     public class App : Application
     {

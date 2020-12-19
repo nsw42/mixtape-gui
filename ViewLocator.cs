@@ -4,9 +4,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using playlist_editor.ViewModels;
+using PlaylistEditor.ViewModels;
 
-namespace playlist_editor
+namespace PlaylistEditor
 {
     public class ViewLocator : IDataTemplate
     {

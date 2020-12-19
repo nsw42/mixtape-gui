@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace playlist_editor.Views
+namespace PlaylistEditor.Views
 {
     public class MainWindow : Window
     {
