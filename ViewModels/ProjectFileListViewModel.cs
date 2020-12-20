@@ -19,7 +19,7 @@ namespace PlaylistEditor.ViewModels
         public void AddFile(string filename)
         {
             if (filename.EndsWith(".mp3")) {
-                MusicFile mf = new MusicFile(filename);
+                MusicFile mf = new MusicFile(_project, filename);
                 _project.AddMusicFile(mf);
                 Items.Add(mf);
             }
