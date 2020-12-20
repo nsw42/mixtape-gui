@@ -62,6 +62,14 @@ namespace PlaylistEditor.Views
                 {
                     Rect r = new Rect(mf.CanvasPosition.Value, DrawSize);
                     context.DrawRectangle(BlackPen, r);
+
+                    FormattedText t = new FormattedText {
+                        Constraint = DrawSize,
+                        TextAlignment = TextAlignment.Center,
+                        Typeface = Typeface.Default,
+                        Text = mf.Title,
+                    };
+                    context.DrawText(Brushes.Black, r.TopLeft, t);
                 }
             }
         }
