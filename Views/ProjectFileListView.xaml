@@ -13,7 +13,7 @@
     </Border>
 
     <ScrollViewer HorizontalAlignment="Stretch" DockPanel.Dock="Top">
-      <ItemsControl Name="ItemsControls" Items="{Binding FileList.Items}">
+      <ItemsControl Name="ItemsControls" Items="{Binding FileList.Items}" PointerPressed="StartDrag">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
             <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding Title}"/>

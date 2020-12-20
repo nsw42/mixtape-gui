@@ -26,6 +26,29 @@ namespace PlaylistEditor.Views
             AvaloniaXamlLoader.Load(this);
         }
 
+        async void StartDrag(object sender, Avalonia.Input.PointerPressedEventArgs eventArgs)
+        {
+            if (eventArgs.Source is TextBlock textBlock) {
+                if (textBlock.DataContext is MusicFile musicFile) {
+                    var dragData = new DataObject();
+                    dragData.Set(DataFormats.Text, musicFile.Title);
+                    dragData.Set("MusicFile", musicFile);
+                    System.Diagnostics.Trace.WriteLine($"Start drag {musicFile.Title}");
+                    var result = await DragDrop.DoDragDrop(eventArgs, dragData, DragDropEffects.Copy);
+                    switch (result)
+                    {
+                        case DragDropEffects.Copy:
+                        case DragDropEffects.Link:
+                            System.Diagnostics.Trace.WriteLine("Data was copied");
+                            break;
+                        case DragDropEffects.None:
+                            System.Diagnostics.Trace.WriteLine("The drag operation was cancelled");
+                            break;
+                    }
+                }
+            }
+        }
+
         void DragOver(object sender, DragEventArgs e)
         {
             // Only allow Copy or Link as Drop Operations.
