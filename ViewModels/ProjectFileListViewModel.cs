@@ -22,6 +22,7 @@ namespace PlaylistEditor.ViewModels
                 MusicFile mf = new MusicFile(_project, filename);
                 _project.AddMusicFile(mf);
                 Items.Add(mf);
+                ModelIO.SaveProject(_project);
             }
         }
     }

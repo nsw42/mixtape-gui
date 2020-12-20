@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Text.Json.Serialization;
 using NAudio.Wave;
 using NLayer.NAudioSupport;
 using PlaylistEditor.Models;
@@ -17,9 +18,16 @@ namespace PlaylistEditor.Models
         public string CachedIntroWavFile { get; set; }
         public string CachedOutroWavFile { get; set; }
 
-        public string Title { get; }
+        [JsonInclude]
+        public string Title { get; private set; }
 
-        public TimeSpan Duration { get; }
+        [JsonInclude]
+        // using seconds allows for easy json serialization
+        public double DurationSeconds { get; private set; }
+
+        public MusicFile()
+        {
+        }
 
         public MusicFile(Project project, string sourceFile)
         {
@@ -38,7 +46,7 @@ namespace PlaylistEditor.Models
 #if MACOS
             using (var reader = new Mp3FileReader(sourceFile, wf => new Mp3FrameDecompressor(wf)))
             {
-                Duration = reader.TotalTime;
+                DurationSeconds = reader.TotalTime.TotalSeconds;
             }
 
             // TODO: This should be moved out into a separate Services class, or a separate thread, or something.
@@ -63,7 +71,7 @@ namespace PlaylistEditor.Models
 
                 if (!File.Exists(CachedOutroWavFile)) {
                     var reader = new AudioFileReader(tmpWav)
-                                      .Skip(Duration - TimeSpan.FromSeconds(OutroDurationSeconds))
+                                      .Skip(TimeSpan.FromSeconds(DurationSeconds - OutroDurationSeconds))
                                       .Take(TimeSpan.FromSeconds(OutroDurationSeconds));
                     WaveFileWriter.CreateWaveFile16(CachedOutroWavFile, reader);
                 }

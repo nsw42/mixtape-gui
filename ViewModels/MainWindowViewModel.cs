@@ -23,7 +23,7 @@ namespace PlaylistEditor.ViewModels
                 {
                     var result = await dialog.ShowAsync(desktop.MainWindow);
                     if (result != null) {
-                        OpenProject(result);
+                        OpenProject(result, create: true);
                     }
                 }
             });
@@ -36,15 +36,20 @@ namespace PlaylistEditor.ViewModels
                 {
                     var result = await dialog.ShowAsync(desktop.MainWindow);
                     if (result != null) {
-                        OpenProject(result);
+                        OpenProject(result, create: false);
                     }
                 }
             });
         }
 
-        private void OpenProject(string projectDir)
+        private void OpenProject(string projectDir, bool create)
         {
-            var project = new Project(projectDir);
+            Project project;
+            if (create) {
+                project = new Project(projectDir);
+            } else {
+                project = ModelIO.LoadProject(projectDir);
+            }
             var window = new ProjectWindow
             {
                 DataContext = new ProjectViewModel(project),

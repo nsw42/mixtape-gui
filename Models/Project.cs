@@ -5,17 +5,23 @@ namespace PlaylistEditor.Models
 {
     public class Project
     {
+        public const string ProjectContentsFileLeaf = "contents.json";
+
         public string ProjectDirectory { get; set; }
         public List<MusicFile> MusicFiles { get; set; }
 
-        public readonly string contentsFile;
+        public string contentsFile {
+            get => Path.Join(ProjectDirectory, ProjectContentsFileLeaf);
+        }
 
-        public Project(string projdir)
+        public Project()
+        {
+            MusicFiles = new List<MusicFile>();
+        }
+
+        public Project(string projdir) : this()
         {
             ProjectDirectory = projdir;
-            MusicFiles = new List<MusicFile>();
-
-            contentsFile = Path.Join(ProjectDirectory, "contents.json");
         }
 
         public void AddMusicFile(MusicFile musicFile) {
