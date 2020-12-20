@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Text.Json.Serialization;
+using Avalonia;
 using NAudio.Wave;
 using NLayer.NAudioSupport;
 using PlaylistEditor.Models;
@@ -25,11 +26,15 @@ namespace PlaylistEditor.Models
         // using seconds allows for easy json serialization
         public double DurationSeconds { get; private set; }
 
+        [JsonInclude]
+        public Point? CanvasPosition { get; set; }
+
         public MusicFile()
         {
+            CanvasPosition = null;
         }
 
-        public MusicFile(Project project, string sourceFile)
+        public MusicFile(Project project, string sourceFile) : this()
         {
             SourceFile = sourceFile;
 

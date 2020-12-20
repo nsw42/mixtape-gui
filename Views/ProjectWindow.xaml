@@ -19,9 +19,9 @@
     <!-- Splitter -->
     <GridSplitter HorizontalAlignment="Right"
                   VerticalAlignment="Stretch"
-                  Grid.Column="1"  Width="5" Background="Transparent" />
+                  Grid.Column="1"  Width="5" Background="Transparent"/>
 
     <!-- Right column: the playlist -->
-    <Canvas Grid.Column="2" Background="Green"/>
+    <views:PlaylistCanvasView Name="PlaylistCanvasView" Grid.Column="2"/>
   </Grid>
 </Window>
