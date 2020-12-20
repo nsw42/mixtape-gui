@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="300"
+             x:Class="PlaylistEditor.Views.ProjectFileListView">
+
+  <DockPanel Grid.Column="0" VerticalAlignment="Stretch" LastChildFill="True">
+    <Border DockPanel.Dock="Bottom"
+            Background="Blue" Padding="16"
+            DragDrop.AllowDrop="True">
+      <TextBlock HorizontalAlignment="Center" Name="FileDropArea">Add file(s)</TextBlock>
+    </Border>
+
+    <ScrollViewer HorizontalAlignment="Stretch" DockPanel.Dock="Top">
+      <ItemsControl Name="ItemsControls" Items="{Binding FileList.Items}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding Title}"/>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

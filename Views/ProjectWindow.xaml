@@ -2,9 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:PlaylistEditor.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PlaylistEditor.Views.ProjectWindow"
-        Title="AvaloniaAppTemplate">
+        Title="{Binding Title}">
   <Grid Margin="2" ShowGridLines="True">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="300"/>
@@ -13,17 +14,9 @@
     </Grid.ColumnDefinitions>
 
     <!-- Left column: the list of files -->
-    <DockPanel Grid.Column="0" VerticalAlignment="Stretch">
-      <!-- bg {DynamicResource SystemAccentColorDark1} -->
-      <Border DockPanel.Dock="Bottom"
-              Background="Blue" Padding="16"
-              DragDrop.AllowDrop="True">
-        <TextBlock HorizontalAlignment="Center" Name="FileDropArea">Add file(s)</TextBlock>
-      </Border>
+    <views:ProjectFileListView Name="FileListView" Grid.Column="0"/>
 
-      <Canvas Background="Red" DockPanel.Dock="Top"/>  <!-- LastChildFill=True so this expands -->
-    </DockPanel>
-
+    <!-- Splitter -->
     <GridSplitter HorizontalAlignment="Right"
                   VerticalAlignment="Stretch"
                   Grid.Column="1"  Width="5" Background="Transparent" />

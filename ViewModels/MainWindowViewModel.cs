@@ -23,14 +23,10 @@ namespace PlaylistEditor.ViewModels
                 {
                     var result = await dialog.ShowAsync(desktop.MainWindow);
                     if (result != null) {
-                        var project = new Project(result);
-                        var window = new ProjectWindow();
-                        window.Project = project;
-                        window.Show();
+                        OpenProject(result);
                     }
                 }
             });
-
 
             OpenExistingProjectCommand = ReactiveCommand.CreateFromTask(async () => {
                 var dialog = new OpenFolderDialog();
@@ -40,13 +36,20 @@ namespace PlaylistEditor.ViewModels
                 {
                     var result = await dialog.ShowAsync(desktop.MainWindow);
                     if (result != null) {
-                        var project = new Project(result);
-                        var window = new ProjectWindow();
-                        window.Project = project;
-                        window.Show();
+                        OpenProject(result);
                     }
                 }
             });
+        }
+
+        private void OpenProject(string projectDir)
+        {
+            var project = new Project(projectDir);
+            var window = new ProjectWindow
+            {
+                DataContext = new ProjectViewModel(project),
+            };
+            window.Show();
         }
 
         public ReactiveCommand<Unit, Unit> CreateNewProjectCommand { get; }
