@@ -11,7 +11,7 @@ namespace PlaylistEditor.Views
     public class PlaylistCanvasView : UserControl
     {
         private Size DrawSize = new Size(200, 50);
-        Pen BlackPen = new Pen(Colors.Black.ToUint32(), thickness: 3);
+        Pen BlackPen = new Pen(Colors.Black.ToUint32());
 
         public PlaylistCanvasView()
         {
