@@ -12,8 +12,10 @@ namespace PlaylistEditor.Views
     {
         private MusicFile MouseOverMusicFile = null;
         private Size DrawSize = new Size(200, 50);
-        Pen BlackPen = new Pen(Colors.Black.ToUint32());
-        Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
+        private Pen BlackPen = new Pen(Colors.Black.ToUint32());
+        private Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
+        private MusicFile MovingMusicFile = null;
+        private Point MusicFileCanvasOffsetFromMousePointer;
 
         public PlaylistCanvasView()
         {
@@ -29,28 +31,54 @@ namespace PlaylistEditor.Views
             AvaloniaXamlLoader.Load(this);
         }
 
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            e.Pointer.Capture(this);
+            e.Handled = true;
+            if (MouseOverMusicFile != null) {
+                MovingMusicFile = MouseOverMusicFile;
+                MusicFileCanvasOffsetFromMousePointer = e.GetPosition(this) - MouseOverMusicFile.CanvasPosition.Value;
+            }
+            base.OnPointerPressed(e);
+        }
+
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        {
+            e.Handled = true;
+            MovingMusicFile = null;
+            base.OnPointerReleased(e);
+        }
+
         protected override void OnPointerMoved(PointerEventArgs e)
         {
-            MusicFile OldMouseOverMusicFile = MouseOverMusicFile;
             Point mousePos = e.GetPosition(this);
-            MouseOverMusicFile = null;
-            if (DataContext is ProjectViewModel viewModel)
+            if (MovingMusicFile != null)
             {
-                foreach (var mf in viewModel.FileList.PlacedItems)
+                MovingMusicFile.CanvasPosition = mousePos - MusicFileCanvasOffsetFromMousePointer;
+                InvalidateVisual();
+            }
+            else
+            {
+                MusicFile OldMouseOverMusicFile = MouseOverMusicFile;
+                MouseOverMusicFile = null;
+                if (DataContext is ProjectViewModel viewModel)
                 {
-                    if ((mf.CanvasPosition.Value.X <= mousePos.X) &&
-                        (mousePos.X <= mf.CanvasPosition.Value.X + DrawSize.Width) &&
-                        (mf.CanvasPosition.Value.Y <= mousePos.Y) &&
-                        (mousePos.Y <= mf.CanvasPosition.Value.Y + DrawSize.Height))
+                    foreach (var mf in viewModel.FileList.PlacedItems)
                     {
-                        MouseOverMusicFile = mf;
-                        break;
+                        if ((mf.CanvasPosition.Value.X <= mousePos.X) &&
+                            (mousePos.X <= mf.CanvasPosition.Value.X + DrawSize.Width) &&
+                            (mf.CanvasPosition.Value.Y <= mousePos.Y) &&
+                            (mousePos.Y <= mf.CanvasPosition.Value.Y + DrawSize.Height))
+                        {
+                            MouseOverMusicFile = mf;
+                            break;
+                        }
                     }
                 }
-            }
-            if (MouseOverMusicFile != OldMouseOverMusicFile)
-            {
-                InvalidateVisual();
+                if (MouseOverMusicFile != OldMouseOverMusicFile)
+                {
+                    InvalidateVisual();
+                }
             }
         }
 
