@@ -10,8 +10,10 @@ namespace PlaylistEditor.Views
 {
     public class PlaylistCanvasView : UserControl
     {
+        private MusicFile MouseOverMusicFile = null;
         private Size DrawSize = new Size(200, 50);
         Pen BlackPen = new Pen(Colors.Black.ToUint32());
+        Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
 
         public PlaylistCanvasView()
         {
@@ -25,6 +27,31 @@ namespace PlaylistEditor.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        protected override void OnPointerMoved(PointerEventArgs e)
+        {
+            MusicFile OldMouseOverMusicFile = MouseOverMusicFile;
+            Point mousePos = e.GetPosition(this);
+            MouseOverMusicFile = null;
+            if (DataContext is ProjectViewModel viewModel)
+            {
+                foreach (var mf in viewModel.FileList.PlacedItems)
+                {
+                    if ((mf.CanvasPosition.Value.X <= mousePos.X) &&
+                        (mousePos.X <= mf.CanvasPosition.Value.X + DrawSize.Width) &&
+                        (mf.CanvasPosition.Value.Y <= mousePos.Y) &&
+                        (mousePos.Y <= mf.CanvasPosition.Value.Y + DrawSize.Height))
+                    {
+                        MouseOverMusicFile = mf;
+                        break;
+                    }
+                }
+            }
+            if (MouseOverMusicFile != OldMouseOverMusicFile)
+            {
+                InvalidateVisual();
+            }
         }
 
         void DragOver(object sender, DragEventArgs e)
@@ -61,6 +88,8 @@ namespace PlaylistEditor.Views
                 foreach (var mf in viewModel.FileList.PlacedItems)
                 {
                     Rect r = new Rect(mf.CanvasPosition.Value, DrawSize);
+                    if (mf == MouseOverMusicFile)
+                        context.DrawRectangle(HighlightPen, r);
                     context.DrawRectangle(BlackPen, r);
 
                     FormattedText t = new FormattedText {
