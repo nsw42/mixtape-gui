@@ -113,9 +113,11 @@ namespace PlaylistEditor.Views
 
             if (DataContext is ProjectViewModel viewModel)
             {
+                Point textOffset = new Point(0, 1);
                 foreach (var mf in viewModel.FileList.PlacedItems)
                 {
                     Rect r = new Rect(mf.CanvasPosition.Value, DrawSize);
+                    context.FillRectangle(Brushes.AliceBlue, r);
                     if (mf == MouseOverMusicFile)
                         context.DrawRectangle(HighlightPen, r);
                     context.DrawRectangle(BlackPen, r);
@@ -126,7 +128,7 @@ namespace PlaylistEditor.Views
                         Typeface = Typeface.Default,
                         Text = mf.Title,
                     };
-                    context.DrawText(Brushes.Black, r.TopLeft, t);
+                    context.DrawText(Brushes.Black, r.TopLeft + textOffset, t);
                 }
             }
         }

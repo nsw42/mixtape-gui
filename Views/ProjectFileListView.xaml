@@ -7,7 +7,7 @@
 
   <DockPanel Grid.Column="0" VerticalAlignment="Stretch" LastChildFill="True">
     <Border DockPanel.Dock="Bottom"
-            Background="Blue" Padding="16"
+            Background="LightSlateGray" Padding="16"
             DragDrop.AllowDrop="True">
       <TextBlock HorizontalAlignment="Center" Name="FileDropArea">Add file(s)</TextBlock>
     </Border>
