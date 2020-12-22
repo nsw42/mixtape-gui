@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -10,16 +11,32 @@ namespace PlaylistEditor.Views
 {
     public class PlaylistCanvasView : UserControl
     {
+        private enum MouseOverSymbol
+        {
+            None,
+            MoveFile,
+            PlayIntro,
+            PlayOutro,
+        };
+
         private MusicFile MouseOverMusicFile = null;
+        private MouseOverSymbol MouseOverElement = MouseOverSymbol.None;
         private Size DrawSize = new Size(200, 50);
         private Pen BlackPen = new Pen(Colors.Black.ToUint32());
         private Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
         private MusicFile MovingMusicFile = null;
         private Point MusicFileCanvasOffsetFromMousePointer;
+        private const int PlayHeight = 20;
+        private Geometry PlaySymbol;
 
         public PlaylistCanvasView()
         {
             InitializeComponent();
+
+            Point p0 = new Point(0, 0);
+            Point p1 = new Point(0, PlayHeight);
+            Point p2 = new Point(PlayHeight, PlayHeight / 2);
+            PlaySymbol = new PolylineGeometry(new List<Point>{p0, p1, p2}, true);
 
             // Set up drag and drop
             AddHandler(DragDrop.DragOverEvent, DragOver);
@@ -60,7 +77,9 @@ namespace PlaylistEditor.Views
             else
             {
                 MusicFile OldMouseOverMusicFile = MouseOverMusicFile;
+                MouseOverSymbol OldMouseOverElement = MouseOverElement;
                 MouseOverMusicFile = null;
+                MouseOverElement = MouseOverSymbol.None;
                 if (DataContext is ProjectViewModel viewModel)
                 {
                     foreach (var mf in viewModel.FileList.PlacedItems)
@@ -71,11 +90,21 @@ namespace PlaylistEditor.Views
                             (mousePos.Y <= mf.CanvasPosition.Value.Y + DrawSize.Height))
                         {
                             MouseOverMusicFile = mf;
+
+                            SetPlaySymbolTransformForIntro(mf);
+                            if (PlaySymbol.FillContains(mousePos)) {
+                                MouseOverElement = MouseOverSymbol.PlayIntro;
+                            } else {
+                                SetPlaySymbolTransformForOutro(mf);
+                                if (PlaySymbol.FillContains(mousePos)) {
+                                    MouseOverElement = MouseOverSymbol.PlayOutro;
+                                }
+                            }
                             break;
                         }
                     }
                 }
-                if (MouseOverMusicFile != OldMouseOverMusicFile)
+                if (MouseOverMusicFile != OldMouseOverMusicFile || MouseOverElement != OldMouseOverElement)
                 {
                     InvalidateVisual();
                 }
@@ -129,8 +158,32 @@ namespace PlaylistEditor.Views
                         Text = mf.Title,
                     };
                     context.DrawText(Brushes.Black, r.TopLeft + textOffset, t);
+
+                    SetPlaySymbolTransformForIntro(mf);
+                    context.DrawGeometry(Brushes.Black,
+                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayIntro) ? HighlightPen : BlackPen,
+                                         PlaySymbol);
+
+                    SetPlaySymbolTransformForOutro(mf);
+                    context.DrawGeometry(Brushes.Black,
+                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
+                                         PlaySymbol);
                 }
             }
+        }
+
+        private void SetPlaySymbolTransformForIntro(MusicFile musicFile)
+        {
+            TranslateTransform playIntroTransform = new TranslateTransform(musicFile.CanvasPosition.Value.X + 5,
+                                                                           musicFile.CanvasPosition.Value.Y + DrawSize.Height - 5 - PlayHeight);
+            PlaySymbol.Transform = playIntroTransform;
+        }
+
+        private void SetPlaySymbolTransformForOutro(MusicFile musicFile)
+        {
+            TranslateTransform playOutroTransform = new TranslateTransform(musicFile.CanvasPosition.Value.X + DrawSize.Width - 5 - PlayHeight,
+                                                                           musicFile.CanvasPosition.Value.Y + DrawSize.Height - 5 - PlayHeight);
+            PlaySymbol.Transform = playOutroTransform;
         }
     }
 }
