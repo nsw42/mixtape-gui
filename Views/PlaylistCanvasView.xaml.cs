@@ -78,6 +78,21 @@ namespace PlaylistEditor.Views
             base.OnPointerReleased(e);
         }
 
+        MouseOverSymbol GetMouseOverSymbol(MusicFile musicFile, Point mousePos)
+        {
+            SetPlaySymbolTransformForIntro(musicFile);
+            if (PlaySymbol.FillContains(mousePos)) {
+                return MouseOverSymbol.PlayIntro;
+            }
+
+            SetPlaySymbolTransformForOutro(musicFile);
+            if (PlaySymbol.FillContains(mousePos)) {
+                return MouseOverSymbol.PlayOutro;
+            }
+
+            return MouseOverSymbol.MoveFile;
+        }
+
         protected override void OnPointerMoved(PointerEventArgs e)
         {
             Point mousePos = e.GetPosition(this);
@@ -102,18 +117,7 @@ namespace PlaylistEditor.Views
                             (mousePos.Y <= mf.CanvasPosition.Value.Y + DrawSize.Height))
                         {
                             MouseOverMusicFile = mf;
-
-                            SetPlaySymbolTransformForIntro(mf);
-                            if (PlaySymbol.FillContains(mousePos)) {
-                                MouseOverElement = MouseOverSymbol.PlayIntro;
-                            } else {
-                                SetPlaySymbolTransformForOutro(mf);
-                                if (PlaySymbol.FillContains(mousePos)) {
-                                    MouseOverElement = MouseOverSymbol.PlayOutro;
-                                } else {
-                                    MouseOverElement = MouseOverSymbol.MoveFile;
-                                }
-                            }
+                            MouseOverElement = GetMouseOverSymbol(mf, mousePos);
                             break;
                         }
                     }
