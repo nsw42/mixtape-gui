@@ -53,8 +53,20 @@ namespace PlaylistEditor.Views
             e.Pointer.Capture(this);
             e.Handled = true;
             if (MouseOverMusicFile != null) {
-                MovingMusicFile = MouseOverMusicFile;
-                MusicFileCanvasOffsetFromMousePointer = e.GetPosition(this) - MouseOverMusicFile.CanvasPosition.Value;
+                switch (MouseOverElement) {
+                    case MouseOverSymbol.None:
+                        break;
+                    case MouseOverSymbol.MoveFile:
+                        MovingMusicFile = MouseOverMusicFile;
+                        MusicFileCanvasOffsetFromMousePointer = e.GetPosition(this) - MouseOverMusicFile.CanvasPosition.Value;
+                        break;
+                    case MouseOverSymbol.PlayIntro:
+                        AudioService.StartPlayingFile(MouseOverMusicFile.CachedIntroWavFile);
+                        break;
+                    case MouseOverSymbol.PlayOutro:
+                        AudioService.StartPlayingFile(MouseOverMusicFile.CachedOutroWavFile);
+                        break;
+                }
             }
             base.OnPointerPressed(e);
         }
@@ -98,6 +110,8 @@ namespace PlaylistEditor.Views
                                 SetPlaySymbolTransformForOutro(mf);
                                 if (PlaySymbol.FillContains(mousePos)) {
                                     MouseOverElement = MouseOverSymbol.PlayOutro;
+                                } else {
+                                    MouseOverElement = MouseOverSymbol.MoveFile;
                                 }
                             }
                             break;
