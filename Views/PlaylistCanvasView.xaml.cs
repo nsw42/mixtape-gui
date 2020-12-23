@@ -17,6 +17,8 @@ namespace PlaylistEditor.Views
             MoveFile,
             PlayIntro,
             PlayOutro,
+            InwardConnectionPoint,
+            OutwardConnectionPoint,
         };
 
         private MusicFile MouseOverMusicFile = null;
@@ -28,6 +30,8 @@ namespace PlaylistEditor.Views
         private Point MusicFileCanvasOffsetFromMousePointer;
         private const int PlayHeight = 20;
         private Geometry PlaySymbol;
+        private const int ConnectionPointSize = 12;
+        private Geometry ConnectionPointSymbol;
 
         public PlaylistCanvasView()
         {
@@ -37,6 +41,8 @@ namespace PlaylistEditor.Views
             Point p1 = new Point(0, PlayHeight);
             Point p2 = new Point(PlayHeight, PlayHeight / 2);
             PlaySymbol = new PolylineGeometry(new List<Point>{p0, p1, p2}, true);
+
+            ConnectionPointSymbol = new EllipseGeometry(new Rect(0, 0, ConnectionPointSize, ConnectionPointSize));
 
             // Set up drag and drop
             AddHandler(DragDrop.DragOverEvent, DragOver);
@@ -90,7 +96,25 @@ namespace PlaylistEditor.Views
                 return MouseOverSymbol.PlayOutro;
             }
 
-            return MouseOverSymbol.MoveFile;
+            SetConnectionPointSymbolTransformForInward(musicFile);
+            if (ConnectionPointSymbol.FillContains(mousePos)) {
+                return MouseOverSymbol.InwardConnectionPoint;
+            }
+
+            SetConnectionPointSymbolTransformForOutward(musicFile);
+            if (ConnectionPointSymbol.FillContains(mousePos)) {
+                return MouseOverSymbol.OutwardConnectionPoint;
+            }
+
+            if ((musicFile.CanvasPosition.Value.X <= mousePos.X) &&
+                (mousePos.X <= musicFile.CanvasPosition.Value.X + DrawSize.Width) &&
+                (musicFile.CanvasPosition.Value.Y <= mousePos.Y) &&
+                (mousePos.Y <= musicFile.CanvasPosition.Value.Y + DrawSize.Height))
+            {
+                return MouseOverSymbol.MoveFile;
+            }
+
+            return MouseOverSymbol.None;
         }
 
         protected override void OnPointerMoved(PointerEventArgs e)
@@ -111,14 +135,20 @@ namespace PlaylistEditor.Views
                 {
                     foreach (var mf in viewModel.FileList.PlacedItems)
                     {
-                        if ((mf.CanvasPosition.Value.X <= mousePos.X) &&
-                            (mousePos.X <= mf.CanvasPosition.Value.X + DrawSize.Width) &&
-                            (mf.CanvasPosition.Value.Y <= mousePos.Y) &&
-                            (mousePos.Y <= mf.CanvasPosition.Value.Y + DrawSize.Height))
+                        // Start off testing if we're *near* the MusicFile's rectangle
+                        // GetMouseOverSymbol repeats this test without the fudge factor
+                        // for the connection point symbol
+                        if ((mf.CanvasPosition.Value.X - ConnectionPointSize / 2 <= mousePos.X) &&
+                            (mousePos.X <= mf.CanvasPosition.Value.X + DrawSize.Width + ConnectionPointSize / 2) &&
+                            (mf.CanvasPosition.Value.Y - ConnectionPointSize / 2 <= mousePos.Y) &&
+                            (mousePos.Y <= mf.CanvasPosition.Value.Y + DrawSize.Height + ConnectionPointSize / 2))
                         {
-                            MouseOverMusicFile = mf;
                             MouseOverElement = GetMouseOverSymbol(mf, mousePos);
-                            break;
+                            if (MouseOverElement != MouseOverSymbol.None)
+                            {
+                                MouseOverMusicFile = mf;
+                                break;
+                            }
                         }
                     }
                 }
@@ -186,6 +216,16 @@ namespace PlaylistEditor.Views
                     context.DrawGeometry(Brushes.Black,
                                          (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
                                          PlaySymbol);
+
+                    SetConnectionPointSymbolTransformForInward(mf);
+                    context.DrawGeometry(Brushes.MediumTurquoise,
+                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.InwardConnectionPoint) ? HighlightPen : BlackPen,
+                                         ConnectionPointSymbol);
+
+                    SetConnectionPointSymbolTransformForOutward(mf);
+                    context.DrawGeometry(Brushes.MediumTurquoise,
+                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.OutwardConnectionPoint) ? HighlightPen : BlackPen,
+                                         ConnectionPointSymbol);
                 }
             }
         }
@@ -202,6 +242,20 @@ namespace PlaylistEditor.Views
             TranslateTransform playOutroTransform = new TranslateTransform(musicFile.CanvasPosition.Value.X + DrawSize.Width - 5 - PlayHeight,
                                                                            musicFile.CanvasPosition.Value.Y + DrawSize.Height - 5 - PlayHeight);
             PlaySymbol.Transform = playOutroTransform;
+        }
+
+        private void SetConnectionPointSymbolTransformForInward(MusicFile musicFile)
+        {
+            TranslateTransform inwardConnectionPointTransform = new TranslateTransform(musicFile.CanvasPosition.Value.X - ConnectionPointSize / 2,
+                                                                                       musicFile.CanvasPosition.Value.Y - ConnectionPointSize / 2);
+            ConnectionPointSymbol.Transform = inwardConnectionPointTransform;
+        }
+
+        private void SetConnectionPointSymbolTransformForOutward(MusicFile musicFile)
+        {
+            TranslateTransform outwardConnectionPointTransform = new TranslateTransform(musicFile.CanvasPosition.Value.X + DrawSize.Width - ConnectionPointSize / 2,
+                                                                                        musicFile.CanvasPosition.Value.Y + DrawSize.Height - ConnectionPointSize / 2);
+            ConnectionPointSymbol.Transform = outwardConnectionPointTransform;
         }
     }
 }
