@@ -29,9 +29,12 @@ namespace PlaylistEditor.Models
         [JsonInclude]
         public Point? CanvasPosition { get; set; }
 
+        public MusicFile NextMusicFile { get; set; }
+
         public MusicFile()
         {
             CanvasPosition = null;
+            NextMusicFile = null;
         }
 
         public MusicFile(Project project, string sourceFile) : this()

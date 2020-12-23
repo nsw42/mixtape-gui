@@ -21,13 +21,35 @@ namespace PlaylistEditor.Views
             OutwardConnectionPoint,
         };
 
+        private enum CurrentMouseDownActionEnum
+        {
+            None,
+            MovingFile,
+            DrawingConnection
+        };
+
+        // properties to track state
+        CurrentMouseDownActionEnum CurrentMouseDownAction = CurrentMouseDownActionEnum.None;
+
+        // properties related to what the mouse is over
+        // updated in OnPointerMoved if CurrentMouseDownAction == None
         private MusicFile MouseOverMusicFile = null;
         private MouseOverSymbol MouseOverElement = MouseOverSymbol.None;
-        private Size DrawSize = new Size(200, 50);
-        private Pen BlackPen = new Pen(Colors.Black.ToUint32());
-        private Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
+
+        // properties used when CurrentMouseDownAction == MovingFile
         private MusicFile MovingMusicFile = null;
         private Point MusicFileCanvasOffsetFromMousePointer;
+
+        // properties used when CurrentMouseDownAction == DrawingConnection
+        private MusicFile DrawingConnectionFromMusicFile = null;
+        private Point DrawingConnectionCurrentMousePos;
+        private MusicFile DrawingConnectionToMusicFile = null;
+
+        // properties related to drawing
+        private readonly Size DrawSize = new Size(200, 50);
+        private readonly Pen BlackPen = new Pen(Colors.Black.ToUint32());
+        private readonly Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
+        private readonly Point TextOffset = new Point(0, 2);
         private const int PlayHeight = 20;
         private Geometry PlaySymbol;
         private const int ConnectionPointSize = 12;
@@ -58,11 +80,13 @@ namespace PlaylistEditor.Views
         {
             e.Pointer.Capture(this);
             e.Handled = true;
+            CurrentMouseDownAction = CurrentMouseDownActionEnum.None;
             if (MouseOverMusicFile != null) {
                 switch (MouseOverElement) {
                     case MouseOverSymbol.None:
                         break;
                     case MouseOverSymbol.MoveFile:
+                        CurrentMouseDownAction = CurrentMouseDownActionEnum.MovingFile;
                         MovingMusicFile = MouseOverMusicFile;
                         MusicFileCanvasOffsetFromMousePointer = e.GetPosition(this) - MouseOverMusicFile.CanvasPosition.Value;
                         break;
@@ -72,6 +96,13 @@ namespace PlaylistEditor.Views
                     case MouseOverSymbol.PlayOutro:
                         AudioService.StartPlayingFile(MouseOverMusicFile.CachedOutroWavFile);
                         break;
+                    case MouseOverSymbol.InwardConnectionPoint:
+                        // TODO
+                        break;
+                    case MouseOverSymbol.OutwardConnectionPoint:
+                        CurrentMouseDownAction = CurrentMouseDownActionEnum.DrawingConnection;
+                        DrawingConnectionFromMusicFile = MouseOverMusicFile;
+                        break;
                 }
             }
             base.OnPointerPressed(e);
@@ -80,7 +111,16 @@ namespace PlaylistEditor.Views
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
             e.Handled = true;
-            MovingMusicFile = null;
+
+            if (CurrentMouseDownAction == CurrentMouseDownActionEnum.DrawingConnection &&
+                DrawingConnectionFromMusicFile != null)
+            {
+                DrawingConnectionFromMusicFile.NextMusicFile = DrawingConnectionToMusicFile;  // Note that this can be null
+            }
+
+            CurrentMouseDownAction = CurrentMouseDownActionEnum.None;
+            MovingMusicFile = DrawingConnectionFromMusicFile = DrawingConnectionToMusicFile = null;
+            OnPointerMoved(e); // recalculate (and hence highlight) the file under the pointer
             base.OnPointerReleased(e);
         }
 
@@ -117,45 +157,74 @@ namespace PlaylistEditor.Views
             return MouseOverSymbol.None;
         }
 
+        private MusicFile GetMusicFileUnderMousePointer(Point mousePos)
+        {
+            if (DataContext is ProjectViewModel viewModel)
+            {
+                foreach (var mf in viewModel.FileList.PlacedItems)
+                {
+                    // Start off testing if we're *near* the MusicFile's rectangle
+                    // GetMouseOverSymbol repeats this test without the fudge factor
+                    // for the connection point symbol
+                    if ((mf.CanvasPosition.Value.X - ConnectionPointSize / 2 <= mousePos.X) &&
+                        (mousePos.X <= mf.CanvasPosition.Value.X + DrawSize.Width + ConnectionPointSize / 2) &&
+                        (mf.CanvasPosition.Value.Y - ConnectionPointSize / 2 <= mousePos.Y) &&
+                        (mousePos.Y <= mf.CanvasPosition.Value.Y + DrawSize.Height + ConnectionPointSize / 2))
+                    {
+                        return mf;
+                    }
+                }
+            }
+            return null;
+        }
+
         protected override void OnPointerMoved(PointerEventArgs e)
         {
             Point mousePos = e.GetPosition(this);
-            if (MovingMusicFile != null)
+            switch (CurrentMouseDownAction)
             {
-                MovingMusicFile.CanvasPosition = mousePos - MusicFileCanvasOffsetFromMousePointer;
-                InvalidateVisual();
-            }
-            else
-            {
-                MusicFile OldMouseOverMusicFile = MouseOverMusicFile;
-                MouseOverSymbol OldMouseOverElement = MouseOverElement;
-                MouseOverMusicFile = null;
-                MouseOverElement = MouseOverSymbol.None;
-                if (DataContext is ProjectViewModel viewModel)
-                {
-                    foreach (var mf in viewModel.FileList.PlacedItems)
+                case CurrentMouseDownActionEnum.MovingFile:
+                    MovingMusicFile.CanvasPosition = mousePos - MusicFileCanvasOffsetFromMousePointer;
+                    InvalidateVisual();
+                    break;
+
+                case CurrentMouseDownActionEnum.DrawingConnection:
+                    DrawingConnectionToMusicFile = GetMusicFileUnderMousePointer(mousePos);
+                    if (DrawingConnectionToMusicFile == DrawingConnectionFromMusicFile)
                     {
-                        // Start off testing if we're *near* the MusicFile's rectangle
-                        // GetMouseOverSymbol repeats this test without the fudge factor
-                        // for the connection point symbol
-                        if ((mf.CanvasPosition.Value.X - ConnectionPointSize / 2 <= mousePos.X) &&
-                            (mousePos.X <= mf.CanvasPosition.Value.X + DrawSize.Width + ConnectionPointSize / 2) &&
-                            (mf.CanvasPosition.Value.Y - ConnectionPointSize / 2 <= mousePos.Y) &&
-                            (mousePos.Y <= mf.CanvasPosition.Value.Y + DrawSize.Height + ConnectionPointSize / 2))
+                        DrawingConnectionToMusicFile = null;
+                    }
+                    if (DrawingConnectionToMusicFile == null) {
+                        DrawingConnectionCurrentMousePos = mousePos;
+                    } else {
+                        // snap to the connection point for this music file
+                        DrawingConnectionCurrentMousePos = new Point(DrawingConnectionToMusicFile.CanvasPosition.Value.X,
+                                                                     DrawingConnectionToMusicFile.CanvasPosition.Value.Y);
+                    }
+                    InvalidateVisual();
+                    break;
+
+                case CurrentMouseDownActionEnum.None:
+                    MusicFile OldMouseOverMusicFile = MouseOverMusicFile;
+                    MouseOverSymbol OldMouseOverElement = MouseOverElement;
+                    MouseOverMusicFile = GetMusicFileUnderMousePointer(mousePos);
+                    if (MouseOverMusicFile == null)
+                    {
+                        MouseOverElement = MouseOverSymbol.None;
+                    }
+                    else
+                    {
+                        MouseOverElement = GetMouseOverSymbol(MouseOverMusicFile, mousePos);
+                        if (MouseOverElement == MouseOverSymbol.None)
                         {
-                            MouseOverElement = GetMouseOverSymbol(mf, mousePos);
-                            if (MouseOverElement != MouseOverSymbol.None)
-                            {
-                                MouseOverMusicFile = mf;
-                                break;
-                            }
+                            MouseOverMusicFile = null;  // We were close to the box but not inside it
                         }
                     }
-                }
-                if (MouseOverMusicFile != OldMouseOverMusicFile || MouseOverElement != OldMouseOverElement)
-                {
-                    InvalidateVisual();
-                }
+                    if (MouseOverMusicFile != OldMouseOverMusicFile || MouseOverElement != OldMouseOverElement)
+                    {
+                        InvalidateVisual();
+                    }
+                    break;
             }
         }
 
@@ -190,7 +259,7 @@ namespace PlaylistEditor.Views
 
             if (DataContext is ProjectViewModel viewModel)
             {
-                Point textOffset = new Point(0, 1);
+                // Firstly, draw all of the files
                 foreach (var mf in viewModel.FileList.PlacedItems)
                 {
                     Rect r = new Rect(mf.CanvasPosition.Value, DrawSize);
@@ -205,7 +274,7 @@ namespace PlaylistEditor.Views
                         Typeface = Typeface.Default,
                         Text = mf.Title,
                     };
-                    context.DrawText(Brushes.Black, r.TopLeft + textOffset, t);
+                    context.DrawText(Brushes.Black, r.TopLeft + TextOffset, t);
 
                     SetPlaySymbolTransformForIntro(mf);
                     context.DrawGeometry(Brushes.Black,
@@ -227,6 +296,26 @@ namespace PlaylistEditor.Views
                                          (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.OutwardConnectionPoint) ? HighlightPen : BlackPen,
                                          ConnectionPointSymbol);
                 }
+
+                // Then overlay all of the connections
+                foreach (var mf in viewModel.FileList.PlacedItems)
+                {
+                    if (mf != DrawingConnectionFromMusicFile && mf.NextMusicFile != null)
+                    {
+                        var outwardConnectionPoint = new Point(mf.CanvasPosition.Value.X + DrawSize.Width,
+                                                               mf.CanvasPosition.Value.Y + DrawSize.Height);
+                        var next = mf.NextMusicFile;
+                        var inwardConnectionPoint = new Point(next.CanvasPosition.Value.X, next.CanvasPosition.Value.Y);
+                        context.DrawLine(BlackPen, outwardConnectionPoint, inwardConnectionPoint);
+                    }
+                }
+            }
+
+            if (CurrentMouseDownAction == CurrentMouseDownActionEnum.DrawingConnection)
+            {
+                context.DrawLine(BlackPen,
+                                 new Point(DrawingConnectionFromMusicFile.CanvasPosition.Value.X + DrawSize.Width, DrawingConnectionFromMusicFile.CanvasPosition.Value.Y + DrawSize.Height),
+                                 DrawingConnectionCurrentMousePos);
             }
         }
 
