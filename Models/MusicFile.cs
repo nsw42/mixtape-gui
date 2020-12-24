@@ -27,13 +27,22 @@ namespace PlaylistEditor.Models
         public double DurationSeconds { get; private set; }
 
         [JsonInclude]
-        public Point? CanvasPosition { get; set; }
+        public double CanvasX { get; set; }
+
+        [JsonInclude]
+        public double CanvasY { get; set; }
+
+        [JsonIgnore]
+        public Point CanvasPosition {
+            get { return new Point(CanvasX, CanvasY); }
+            set { CanvasX = value.X; CanvasY=value.Y; }
+        }
 
         public MusicFile NextMusicFile { get; set; }
 
         public MusicFile()
         {
-            CanvasPosition = null;
+            CanvasX = CanvasY = 0;
             NextMusicFile = null;
         }
 

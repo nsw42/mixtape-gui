@@ -1,6 +1,6 @@
 using System.IO;
 using System.Text.Json;
-using PlaylistEditor.Models;
+using System.Text.Json.Serialization;
 
 namespace PlaylistEditor.Models
 {
@@ -9,6 +9,7 @@ namespace PlaylistEditor.Models
         {
             var options = new JsonSerializerOptions {
                 WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.Preserve,
             };
             string jsonString = JsonSerializer.Serialize(project, options);
             File.WriteAllText(project.contentsFile, jsonString);
@@ -20,6 +21,7 @@ namespace PlaylistEditor.Models
             string jsonString = File.ReadAllText(filename);
             var options = new JsonSerializerOptions {
                 IncludeFields = true,
+                ReferenceHandler = ReferenceHandler.Preserve,
             };
             Project project = JsonSerializer.Deserialize<Project>(jsonString, options);
             return project;

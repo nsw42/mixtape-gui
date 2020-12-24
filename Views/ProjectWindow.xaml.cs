@@ -1,7 +1,5 @@
 using System;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using PlaylistEditor.Models;
 using PlaylistEditor.ViewModels;
@@ -18,6 +16,19 @@ namespace PlaylistEditor.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        public void OnSaveClicked(object sender, EventArgs args)
+        {
+            if (DataContext is ProjectViewModel viewModel)
+            {
+                ModelIO.SaveProject(viewModel.Project);
+            }
+        }
+
+        public void OnCloseClicked(object sender, EventArgs args)
+        {
+            Close();
         }
     }
 }

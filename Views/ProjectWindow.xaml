@@ -6,6 +6,24 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PlaylistEditor.Views.ProjectWindow"
         Title="{Binding Title}">
+  <NativeMenu.Menu>
+    <NativeMenu>
+      <NativeMenuItem Header="File">
+        <NativeMenuItem.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Save"
+                            Gesture="CMD+S"
+                            Clicked="OnSaveClicked" />
+            <NativeMenuItemSeperator/>
+            <NativeMenuItem Header="Close Window"
+                            Gesture="CMD+W"
+                            Clicked="OnCloseClicked" />
+          </NativeMenu>
+        </NativeMenuItem.Menu>
+      </NativeMenuItem>
+    </NativeMenu>
+  </NativeMenu.Menu>
+
   <Grid Margin="2" ShowGridLines="True">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="300"/>

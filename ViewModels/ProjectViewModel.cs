@@ -6,19 +6,18 @@ namespace PlaylistEditor.ViewModels
 {
     public class ProjectViewModel : ViewModelBase
     {
-        private Project _project;
+        public Project Project { get; set; }
 
         public ProjectViewModel(Project project)
         {
-            _project = project;
+            Project = project;
             FileList = new ProjectFileListViewModel(project);
         }
 
         public ProjectFileListViewModel FileList { get; }
 
         public string Title { get {
-            return _project.ProjectDirectory;
+            return Project.ProjectDirectory;
         } }
-
     }
 }
