@@ -7,6 +7,23 @@
         x:Class="PlaylistEditor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="PlaylistEditor">
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="File">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Open"
+                                        Gesture="CMD+O"
+                                        Clicked="OnOpenClicked"/>
+                        <NativeMenuItemSeperator/>
+                        <NativeMenuItem Header="Close Window"
+                                        Gesture="CMD+W"
+                                        Clicked="OnCloseClicked"/>
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem>
+        </NativeMenu>
+    </NativeMenu.Menu>
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
