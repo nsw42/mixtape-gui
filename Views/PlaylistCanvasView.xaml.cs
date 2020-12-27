@@ -76,7 +76,7 @@ namespace PlaylistEditor.Views
                 .Subscribe(offset => {
                     var viewModel = DataContext as ProjectViewModel;
                     CanvasToScreenTransform = new TranslateTransform(-offset.X - (viewModel?.CanvasX0 ?? 0) + ProjectViewModel.ScrollMargin,
-                                                                     -offset.Y + (viewModel?.CanvasY0 ?? 0) + ProjectViewModel.ScrollMargin);
+                                                                     -offset.Y - (viewModel?.CanvasY0 ?? 0) + ProjectViewModel.ScrollMargin);
                     ScreenToCanvasTransform = new TranslateTransform(-CanvasToScreenTransform.X, -CanvasToScreenTransform.Y);
                     // System.Diagnostics.Trace.WriteLine($"CanvasToScreenTransform: {CanvasToScreenTransform.X}, {CanvasToScreenTransform.Y}");
                     // System.Diagnostics.Trace.WriteLine($"ScreenToCanvasTransform: {ScreenToCanvasTransform.X}, {ScreenToCanvasTransform.Y}");
