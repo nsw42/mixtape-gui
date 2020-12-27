@@ -66,7 +66,7 @@ namespace PlaylistEditor.Views
                 DataContext is ProjectViewModel viewModel)
             {
                 foreach (string fn in e.Data.GetFileNames()) {
-                    viewModel.FileList.AddFile(fn);
+                    viewModel.AddFile(fn);
                 }
             }
         }

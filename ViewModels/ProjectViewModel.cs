@@ -1,5 +1,5 @@
 using System;
-using System.Reactive.Linq;
+using System.Collections.ObjectModel;
 using Avalonia;
 using ReactiveUI;
 using PlaylistEditor.Models;
@@ -10,11 +10,11 @@ namespace PlaylistEditor.ViewModels
     {
         public Project Project { get; set; }
 
-        public ProjectFileListViewModel FileList { get; }
-
         public string Title { get {
             return Project.ProjectDirectory;
         } }
+
+
 
         public const double ScrollMargin = 100;
 
@@ -40,10 +40,12 @@ namespace PlaylistEditor.ViewModels
         private ObservableAsPropertyHelper<double> visibleHeight;
         public double VisibleHeight => visibleHeight.Value;
 
+        public ObservableCollection<MusicFile> PlacedItems { get; }
+        public ObservableCollection<MusicFile> UnplacedItems { get; }
+
         public ProjectViewModel(Project project)
         {
             Project = project;
-            FileList = new ProjectFileListViewModel(project);
 
             visibleWidth = this
                 .WhenAnyValue(vm => vm.CanvasX0, vm => vm.CanvasX1,
@@ -54,6 +56,19 @@ namespace PlaylistEditor.ViewModels
                 .WhenAnyValue(vm => vm.CanvasY0, vm => vm.CanvasY1,
                               (y0, y1) => (ScrollMargin * 2 + y1 - y0))
                 .ToProperty(this, x => x.VisibleHeight);
+
+            PlacedItems = new ObservableCollection<MusicFile>(project.MusicFiles.FindAll((musicFile) => (musicFile.CanvasX != 0 && musicFile.CanvasY != 0)));
+            UnplacedItems = new ObservableCollection<MusicFile>(project.MusicFiles.FindAll((musicFile) => (musicFile.CanvasX == 0 && musicFile.CanvasY == 0)));
+        }
+
+        public void AddFile(string filename)
+        {
+            if (filename.EndsWith(".mp3")) {
+                MusicFile mf = new MusicFile(Project, filename);
+                Project.AddMusicFile(mf);
+                UnplacedItems.Add(mf);
+                ModelIO.SaveProject(Project);
+            }
         }
 
         public void PlaceFile(MusicFile musicFile, Point p)
@@ -64,8 +79,8 @@ namespace PlaylistEditor.ViewModels
             CanvasY0 = Math.Min(CanvasY0, p.Y);
             CanvasY1 = Math.Max(CanvasY1, p.Y);
 
-//            UnplacedItems.Remove(musicFile);
-//            PlacedItems.Add(musicFile);
+            UnplacedItems.Remove(musicFile);
+            PlacedItems.Add(musicFile);
         }
     }
 }

@@ -180,7 +180,7 @@ namespace PlaylistEditor.Views
         {
             if (DataContext is ProjectViewModel viewModel)
             {
-                foreach (var mf in viewModel.FileList.PlacedItems)
+                foreach (var mf in viewModel.PlacedItems)
                 {
                     // Start off testing if we're *near* the MusicFile's rectangle
                     // GetMouseOverSymbol repeats this test without the fudge factor
@@ -290,7 +290,7 @@ namespace PlaylistEditor.Views
             var transform = context.PushPreTransform(CanvasToScreenTransform.Value);
 
             // Firstly, draw all of the files
-            foreach (var mf in viewModel.FileList.PlacedItems)
+            foreach (var mf in viewModel.PlacedItems)
             {
                 Rect r = new Rect(mf.CanvasPosition, DrawSize);
                 context.FillRectangle(Brushes.AliceBlue, r);
@@ -328,7 +328,7 @@ namespace PlaylistEditor.Views
             }
 
             // Then overlay all of the connections
-            foreach (var mf in viewModel.FileList.PlacedItems)
+            foreach (var mf in viewModel.PlacedItems)
             {
                 if (mf != DrawingConnectionFromMusicFile && mf.NextMusicFile != null)
                 {
