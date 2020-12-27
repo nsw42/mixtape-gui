@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
@@ -54,17 +55,33 @@ namespace PlaylistEditor.Views
         private Geometry PlaySymbol;
         private const int ConnectionPointSize = 12;
         private Geometry ConnectionPointSymbol;
+        private TranslateTransform CanvasToScreenTransform;
+        private TranslateTransform ScreenToCanvasTransform;
 
         public PlaylistCanvasView()
         {
             InitializeComponent();
 
+            // Set up geometries for rendering
             Point p0 = new Point(0, 0);
             Point p1 = new Point(0, PlayHeight);
             Point p2 = new Point(PlayHeight, PlayHeight / 2);
             PlaySymbol = new PolylineGeometry(new List<Point>{p0, p1, p2}, true);
 
             ConnectionPointSymbol = new EllipseGeometry(new Rect(0, 0, ConnectionPointSize, ConnectionPointSize));
+
+            // Set up transform objects for scrolling
+            var scrollWidget = this.FindControl<ScrollViewer>("ScrollWidget");
+            scrollWidget.GetObservable(ScrollViewer.OffsetProperty)
+                .Subscribe(offset => {
+                    var viewModel = DataContext as ProjectViewModel;
+                    CanvasToScreenTransform = new TranslateTransform(-offset.X - (viewModel?.CanvasX0 ?? 0) + ProjectViewModel.ScrollMargin,
+                                                                     -offset.Y + (viewModel?.CanvasY0 ?? 0) + ProjectViewModel.ScrollMargin);
+                    ScreenToCanvasTransform = new TranslateTransform(-CanvasToScreenTransform.X, -CanvasToScreenTransform.Y);
+                    // System.Diagnostics.Trace.WriteLine($"CanvasToScreenTransform: {CanvasToScreenTransform.X}, {CanvasToScreenTransform.Y}");
+                    // System.Diagnostics.Trace.WriteLine($"ScreenToCanvasTransform: {ScreenToCanvasTransform.X}, {ScreenToCanvasTransform.Y}");
+                    InvalidateVisual();
+                });
 
             // Set up drag and drop
             AddHandler(DragDrop.DragOverEvent, DragOver);
@@ -88,7 +105,11 @@ namespace PlaylistEditor.Views
                     case MouseOverSymbol.MoveFile:
                         CurrentMouseDownAction = CurrentMouseDownActionEnum.MovingFile;
                         MovingMusicFile = MouseOverMusicFile;
-                        MusicFileCanvasOffsetFromMousePointer = e.GetPosition(this) - new Point(MouseOverMusicFile.CanvasX, MouseOverMusicFile.CanvasY);
+                        var mousePos = e.GetPosition(this);
+                        // System.Diagnostics.Trace.WriteLine($"mouse down: screen: {mousePos.X}, {mousePos.Y}");
+                        mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
+                        // System.Diagnostics.Trace.WriteLine($"            canvas: {mousePos.X}, {mousePos.Y}");
+                        MusicFileCanvasOffsetFromMousePointer = mousePos - new Point(MouseOverMusicFile.CanvasX, MouseOverMusicFile.CanvasY);
                         break;
                     case MouseOverSymbol.PlayIntro:
                         AudioService.StartPlayingFile(MouseOverMusicFile.CachedIntroWavFile);
@@ -179,10 +200,16 @@ namespace PlaylistEditor.Views
         protected override void OnPointerMoved(PointerEventArgs e)
         {
             Point mousePos = e.GetPosition(this);
+            mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
+            ProjectViewModel viewModel = DataContext as ProjectViewModel;
+            if (viewModel == null)
+            {
+                return;
+            }
             switch (CurrentMouseDownAction)
             {
                 case CurrentMouseDownActionEnum.MovingFile:
-                    MovingMusicFile.CanvasPosition = mousePos - MusicFileCanvasOffsetFromMousePointer;
+                    viewModel.PlaceFile(MovingMusicFile, mousePos - MusicFileCanvasOffsetFromMousePointer);
                     InvalidateVisual();
                     break;
 
@@ -240,7 +267,11 @@ namespace PlaylistEditor.Views
                 if (DataContext is ProjectViewModel viewModel)
                 {
                     MusicFile mf = e.Data.Get("MusicFile") as MusicFile;
-                    viewModel.FileList.PlaceFile(mf, e.GetPosition(this));
+                    var mousePos = e.GetPosition(this);
+                    // System.Diagnostics.Trace.WriteLine($"DragEnd: {mf.Title} to screenpos {mousePos}");
+                    mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
+                    // System.Diagnostics.Trace.WriteLine($"  canvas position {mousePos}");
+                    viewModel.PlaceFile(mf, mousePos);
                     InvalidateVisual();
                 }
             }
@@ -249,62 +280,63 @@ namespace PlaylistEditor.Views
         public override void Render(DrawingContext context)
         {
             base.Render(context);
-            if (!(VisualRoot is Window w))
+            var viewModel = DataContext as ProjectViewModel;
+
+            if (!(VisualRoot is Window w) || (viewModel == null))
             {
                 return;
             }
 
-            if (DataContext is ProjectViewModel viewModel)
+            var transform = context.PushPreTransform(CanvasToScreenTransform.Value);
+
+            // Firstly, draw all of the files
+            foreach (var mf in viewModel.FileList.PlacedItems)
             {
-                // Firstly, draw all of the files
-                foreach (var mf in viewModel.FileList.PlacedItems)
+                Rect r = new Rect(mf.CanvasPosition, DrawSize);
+                context.FillRectangle(Brushes.AliceBlue, r);
+                if (mf == MouseOverMusicFile)
+                    context.DrawRectangle(HighlightPen, r);
+                context.DrawRectangle(BlackPen, r);
+
+                FormattedText t = new FormattedText {
+                    Constraint = DrawSize,
+                    TextAlignment = TextAlignment.Center,
+                    Typeface = Typeface.Default,
+                    Text = mf.Title,
+                };
+                context.DrawText(Brushes.Black, r.TopLeft + TextOffset, t);
+
+                SetPlaySymbolTransformForIntro(mf);
+                context.DrawGeometry(Brushes.Black,
+                                        (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayIntro) ? HighlightPen : BlackPen,
+                                        PlaySymbol);
+
+                SetPlaySymbolTransformForOutro(mf);
+                context.DrawGeometry(Brushes.Black,
+                                        (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
+                                        PlaySymbol);
+
+                SetConnectionPointSymbolTransformForInward(mf);
+                context.DrawGeometry(Brushes.MediumTurquoise,
+                                        (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.InwardConnectionPoint) ? HighlightPen : BlackPen,
+                                        ConnectionPointSymbol);
+
+                SetConnectionPointSymbolTransformForOutward(mf);
+                context.DrawGeometry(Brushes.MediumTurquoise,
+                                        (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.OutwardConnectionPoint) ? HighlightPen : BlackPen,
+                                        ConnectionPointSymbol);
+            }
+
+            // Then overlay all of the connections
+            foreach (var mf in viewModel.FileList.PlacedItems)
+            {
+                if (mf != DrawingConnectionFromMusicFile && mf.NextMusicFile != null)
                 {
-                    Rect r = new Rect(mf.CanvasPosition, DrawSize);
-                    context.FillRectangle(Brushes.AliceBlue, r);
-                    if (mf == MouseOverMusicFile)
-                        context.DrawRectangle(HighlightPen, r);
-                    context.DrawRectangle(BlackPen, r);
-
-                    FormattedText t = new FormattedText {
-                        Constraint = DrawSize,
-                        TextAlignment = TextAlignment.Center,
-                        Typeface = Typeface.Default,
-                        Text = mf.Title,
-                    };
-                    context.DrawText(Brushes.Black, r.TopLeft + TextOffset, t);
-
-                    SetPlaySymbolTransformForIntro(mf);
-                    context.DrawGeometry(Brushes.Black,
-                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayIntro) ? HighlightPen : BlackPen,
-                                         PlaySymbol);
-
-                    SetPlaySymbolTransformForOutro(mf);
-                    context.DrawGeometry(Brushes.Black,
-                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
-                                         PlaySymbol);
-
-                    SetConnectionPointSymbolTransformForInward(mf);
-                    context.DrawGeometry(Brushes.MediumTurquoise,
-                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.InwardConnectionPoint) ? HighlightPen : BlackPen,
-                                         ConnectionPointSymbol);
-
-                    SetConnectionPointSymbolTransformForOutward(mf);
-                    context.DrawGeometry(Brushes.MediumTurquoise,
-                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.OutwardConnectionPoint) ? HighlightPen : BlackPen,
-                                         ConnectionPointSymbol);
-                }
-
-                // Then overlay all of the connections
-                foreach (var mf in viewModel.FileList.PlacedItems)
-                {
-                    if (mf != DrawingConnectionFromMusicFile && mf.NextMusicFile != null)
-                    {
-                        var outwardConnectionPoint = new Point(mf.CanvasX + DrawSize.Width,
-                                                               mf.CanvasY + DrawSize.Height);
-                        var next = mf.NextMusicFile;
-                        var inwardConnectionPoint = next.CanvasPosition;
-                        context.DrawLine(BlackPen, outwardConnectionPoint, inwardConnectionPoint);
-                    }
+                    var outwardConnectionPoint = new Point(mf.CanvasX + DrawSize.Width,
+                                                            mf.CanvasY + DrawSize.Height);
+                    var next = mf.NextMusicFile;
+                    var inwardConnectionPoint = next.CanvasPosition;
+                    context.DrawLine(BlackPen, outwardConnectionPoint, inwardConnectionPoint);
                 }
             }
 
@@ -314,6 +346,8 @@ namespace PlaylistEditor.Views
                                  new Point(DrawingConnectionFromMusicFile.CanvasX + DrawSize.Width, DrawingConnectionFromMusicFile.CanvasY + DrawSize.Height),
                                  DrawingConnectionCurrentMousePos);
             }
+
+            transform.Dispose();
         }
 
         private void SetPlaySymbolTransformForIntro(MusicFile musicFile)

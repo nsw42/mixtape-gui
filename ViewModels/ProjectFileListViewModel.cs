@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Avalonia;
 using PlaylistEditor.Models;
@@ -29,11 +28,5 @@ namespace PlaylistEditor.ViewModels
             }
         }
 
-        public void PlaceFile(MusicFile musicFile, Point p)
-        {
-            musicFile.CanvasPosition = p;
-            UnplacedItems.Remove(musicFile);
-            PlacedItems.Add(musicFile);
-        }
     }
 }
