@@ -73,14 +73,19 @@ namespace PlaylistEditor.ViewModels
 
         public void PlaceFile(MusicFile musicFile, Point p)
         {
+            bool alreadyPlaced = (musicFile.CanvasX != 0 || musicFile.CanvasY != 0);
+
             musicFile.CanvasPosition = p;
             CanvasX0 = Math.Min(CanvasX0, p.X);
             CanvasX1 = Math.Max(CanvasX1, p.X);
             CanvasY0 = Math.Min(CanvasY0, p.Y);
             CanvasY1 = Math.Max(CanvasY1, p.Y);
 
-            UnplacedItems.Remove(musicFile);
-            PlacedItems.Add(musicFile);
+            if (!alreadyPlaced)
+            {
+                UnplacedItems.Remove(musicFile);
+                PlacedItems.Add(musicFile);
+            }
         }
     }
 }
