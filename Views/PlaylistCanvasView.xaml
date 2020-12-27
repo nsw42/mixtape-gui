@@ -2,10 +2,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PlaylistEditor.Views.PlaylistCanvasView"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              HorizontalAlignment="Stretch"
-             VerticalAlignment="Stretch"
-             DragDrop.AllowDrop="True"
-             Background="Transparent">
+             VerticalAlignment="Stretch">
+    <ScrollViewer Name="ScrollWidget"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  HorizontalScrollBarVisibility="Visible"
+                  VerticalScrollBarVisibility="Visible">
+        <UserControl Name="Canvas"
+                     HorizontalAlignment="Stretch"
+                     VerticalAlignment="Stretch"
+                     DragDrop.AllowDrop="True"
+                     Background="Transparent"
+                     MinWidth="{Binding $parent.HorizontalScrollBarViewportSize}"
+                     MinHeight="{Binding $parent.VerticalScrollBarViewportSize}"
+                     Width="{Binding VisibleWidth}"
+                     Height="{Binding VisibleHeight}">
+        </UserControl>
+    </ScrollViewer>
 </UserControl>
