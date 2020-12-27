@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Reactive;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using ReactiveUI;
 using PlaylistEditor.Models;
 using PlaylistEditor.ViewModels;
 
@@ -55,6 +57,7 @@ namespace PlaylistEditor.Views
         private Geometry PlaySymbol;
         private const int ConnectionPointSize = 12;
         private Geometry ConnectionPointSymbol;
+        private ScrollViewer ScrollWidget;
         private TranslateTransform CanvasToScreenTransform;
         private TranslateTransform ScreenToCanvasTransform;
 
@@ -70,22 +73,50 @@ namespace PlaylistEditor.Views
 
             ConnectionPointSymbol = new EllipseGeometry(new Rect(0, 0, ConnectionPointSize, ConnectionPointSize));
 
+            ReactiveCommand<Unit, Unit> recalculateScrollTransforms = ReactiveCommand.Create(
+                () => RecalculateScrollTransforms(),
+                outputScheduler: RxApp.MainThreadScheduler
+            );
+
             // Set up transform objects for scrolling
-            var scrollWidget = this.FindControl<ScrollViewer>("ScrollWidget");
-            scrollWidget.GetObservable(ScrollViewer.OffsetProperty)
+            ScrollWidget = this.FindControl<ScrollViewer>("ScrollWidget");
+            ScrollWidget.GetObservable(ScrollViewer.OffsetProperty)
                 .Subscribe(offset => {
-                    var viewModel = DataContext as ProjectViewModel;
-                    CanvasToScreenTransform = new TranslateTransform(-offset.X - (viewModel?.CanvasX0 ?? 0) + ProjectViewModel.ScrollMargin,
-                                                                     -offset.Y - (viewModel?.CanvasY0 ?? 0) + ProjectViewModel.ScrollMargin);
-                    ScreenToCanvasTransform = new TranslateTransform(-CanvasToScreenTransform.X, -CanvasToScreenTransform.Y);
-                    // System.Diagnostics.Trace.WriteLine($"CanvasToScreenTransform: {CanvasToScreenTransform.X}, {CanvasToScreenTransform.Y}");
-                    // System.Diagnostics.Trace.WriteLine($"ScreenToCanvasTransform: {ScreenToCanvasTransform.X}, {ScreenToCanvasTransform.Y}");
-                    InvalidateVisual();
+                    System.Diagnostics.Trace.WriteLine("Scroll changed");
+                    recalculateScrollTransforms.Execute().Subscribe();
                 });
+
+            this.GetObservable(PlaylistCanvasView.DataContextProperty)
+                .Subscribe(context => {
+                    if (context is ProjectViewModel vm)
+                    {
+                        vm.PropertyChanged += (sender, args) => {
+                            if (args.PropertyName == "CanvasX0" || args.PropertyName == "CanvasY0") {
+                                System.Diagnostics.Trace.WriteLine("VM Property changed");
+                                recalculateScrollTransforms.Execute().Subscribe();
+                            }
+                        };
+                    }
+                });
+
+            RecalculateScrollTransforms();
 
             // Set up drag and drop
             AddHandler(DragDrop.DragOverEvent, DragOver);
             AddHandler(DragDrop.DropEvent, DragEnd);
+        }
+
+        private void RecalculateScrollTransforms()
+        {
+            var viewModel = DataContext as ProjectViewModel;
+            var offset = ScrollWidget.Offset;
+            System.Diagnostics.Trace.WriteLine("Recalculating scroll transforms");
+            CanvasToScreenTransform = new TranslateTransform(-offset.X - (viewModel?.CanvasX0 ?? 0) + ProjectViewModel.ScrollMargin,
+                                                                -offset.Y - (viewModel?.CanvasY0 ?? 0) + ProjectViewModel.ScrollMargin);
+            ScreenToCanvasTransform = new TranslateTransform(-CanvasToScreenTransform.X, -CanvasToScreenTransform.Y);
+            // System.Diagnostics.Trace.WriteLine($"CanvasToScreenTransform: {CanvasToScreenTransform.X}, {CanvasToScreenTransform.Y}");
+            // System.Diagnostics.Trace.WriteLine($"ScreenToCanvasTransform: {ScreenToCanvasTransform.X}, {ScreenToCanvasTransform.Y}");
+            InvalidateVisual();
         }
 
         private void InitializeComponent()
