@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using PlaylistEditor.Models;
 
-namespace PlaylistEditor.Models
+namespace PlaylistEditor.Services
 {
     public class MusicFilePOCO
     {
@@ -45,7 +46,7 @@ namespace PlaylistEditor.Models
     }
 
 
-    public class ModelIO {
+    public class IOService {
         public static void SaveProject(Project project)
         {
             // Create the list of POCOs corresponding to the MusicFiles

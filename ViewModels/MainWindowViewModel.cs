@@ -79,7 +79,7 @@ namespace PlaylistEditor.ViewModels
             if (create) {
                 project = new Project(projectDir);
             } else {
-                project = ModelIO.LoadProject(projectDir);
+                project = IOService.LoadProject(projectDir);
             }
             var window = new ProjectWindow
             {

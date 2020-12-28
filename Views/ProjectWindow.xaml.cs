@@ -1,7 +1,7 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using PlaylistEditor.Models;
+using PlaylistEditor.Services;
 using PlaylistEditor.ViewModels;
 
 namespace PlaylistEditor.Views
@@ -22,7 +22,7 @@ namespace PlaylistEditor.Views
         {
             if (DataContext is ProjectViewModel viewModel)
             {
-                ModelIO.SaveProject(viewModel.Project);
+                IOService.SaveProject(viewModel.Project);
             }
         }
 

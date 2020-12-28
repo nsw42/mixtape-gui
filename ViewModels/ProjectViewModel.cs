@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using Avalonia;
 using ReactiveUI;
 using PlaylistEditor.Models;
+using PlaylistEditor.Services;
 
 namespace PlaylistEditor.ViewModels
 {
@@ -67,7 +68,7 @@ namespace PlaylistEditor.ViewModels
                 MusicFile mf = new MusicFile(Project, filename);
                 Project.AddMusicFile(mf);
                 UnplacedItems.Add(mf);
-                ModelIO.SaveProject(Project);
+                IOService.SaveProject(Project);
             }
         }
 
