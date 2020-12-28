@@ -2,11 +2,9 @@
 
 using System;
 using System.IO;
-using System.Text.Json.Serialization;
 using Avalonia;
 using NAudio.Wave;
 using NLayer.NAudioSupport;
-using PlaylistEditor.Models;
 
 namespace PlaylistEditor.Models
 {
@@ -19,20 +17,15 @@ namespace PlaylistEditor.Models
         public string CachedIntroWavFile { get; set; }
         public string CachedOutroWavFile { get; set; }
 
-        [JsonInclude]
         public string Title { get; private set; }
 
-        [JsonInclude]
         // using seconds allows for easy json serialization
         public double DurationSeconds { get; private set; }
 
-        [JsonInclude]
         public double CanvasX { get; set; }
 
-        [JsonInclude]
         public double CanvasY { get; set; }
 
-        [JsonIgnore]
         public Point CanvasPosition {
             get { return new Point(CanvasX, CanvasY); }
             set { CanvasX = value.X; CanvasY=value.Y; }
