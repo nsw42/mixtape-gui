@@ -8,6 +8,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using ReactiveUI;
 using PlaylistEditor.Models;
+using PlaylistEditor.Services;
 using PlaylistEditor.ViewModels;
 
 namespace PlaylistEditor.Views

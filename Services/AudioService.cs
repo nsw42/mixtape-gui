@@ -3,7 +3,7 @@ using System.Diagnostics;
 using NAudio.Wave;
 using System.Threading;
 
-namespace PlaylistEditor
+namespace PlaylistEditor.Services
 {
     public class AudioService
     {
