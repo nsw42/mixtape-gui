@@ -29,9 +29,10 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <StackPanel>
+    <StackPanel Spacing="30">
         <Button Width="200" Command="{Binding CreateNewProjectCommand}">Create new project</Button>
         <Button Width="200" Command="{Binding OpenExistingProjectCommand}">Open existing project</Button>
+        <Button Width="200" Command="{Binding ImportM3UPlaylistCommand}">Import .m3u playlist as new project</Button>
     </StackPanel>
 
 </Window>
