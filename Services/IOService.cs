@@ -129,6 +129,11 @@ namespace PlaylistEditor.Services
                 var mfFrom = pocoToMusicFileMapping[pocoFrom];
                 var mfTo = pocoToMusicFileMapping[pocoTo];
                 mfFrom.NextMusicFile = mfTo;
+                if (mfTo != null)
+                {
+                    // This should always be true
+                    mfTo.PrevMusicFile = mfFrom;
+                }
             }
             return project;
         }

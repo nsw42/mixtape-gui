@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using ReactiveUI;
 using PlaylistEditor.Models;
 using PlaylistEditor.Services;
@@ -23,7 +24,8 @@ namespace PlaylistEditor.Views
             PlayOutro,
             InwardConnectionPoint,
             OutwardConnectionPoint,
-            PlayTransition,
+            PlayTransition,  // MouseOverMusicFile is the 'from' node
+            PlayAllTransitionsInChain,  // MouseOverMusicFile is the first node in the chain
         };
 
         private enum CurrentMouseDownActionEnum
@@ -51,7 +53,9 @@ namespace PlaylistEditor.Views
         private MusicFile DrawingConnectionToMusicFile = null;
 
         // properties related to drawing
+        private readonly Size HeaderSize = new Size(200, 24);
         private readonly Size DrawSize = new Size(200, 50);
+        private readonly IBrush GlaucosBrush = new ImmutableSolidColorBrush(0xff5688c7);
         private readonly Pen BlackPen = new Pen(Colors.Black.ToUint32());
         private readonly Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
         private readonly Point TextOffset = new Point(0, 2);
@@ -159,8 +163,18 @@ namespace PlaylistEditor.Views
                         DrawingConnectionFromMusicFile = MouseOverMusicFile;
                         break;
                     case MouseOverSymbol.PlayTransition:
-                        string[] files = new string[] { MouseOverMusicFile.CachedOutroWavFile, MouseOverMusicFile.NextMusicFile.CachedIntroWavFile };
-                        AudioService.StartPlayingFileList(files);
+                        List<string> transitionFiles = new List<string> { MouseOverMusicFile.CachedOutroWavFile, MouseOverMusicFile.NextMusicFile.CachedIntroWavFile };
+                        AudioService.StartPlayingFileList(transitionFiles);
+                        break;
+                    case MouseOverSymbol.PlayAllTransitionsInChain:
+                        var chainFiles = new List<string>();
+                        var currentFile = MouseOverMusicFile;
+                        while (currentFile != null) {
+                            chainFiles.Add(currentFile.CachedIntroWavFile);
+                            chainFiles.Add(currentFile.CachedOutroWavFile);
+                            currentFile = currentFile.NextMusicFile;
+                        }
+                        AudioService.StartPlayingFileList(chainFiles);
                         break;
                 }
             }
@@ -256,6 +270,24 @@ namespace PlaylistEditor.Views
             return null;
         }
 
+        private MusicFile GetChainHeaderUnderMousePointer(Point mousePos)
+        {
+            if (DataContext is ProjectViewModel viewModel)
+            {
+                foreach (var mf in viewModel.PlacedItems)
+                {
+                    if (mf.NextMusicFile != null && mf.PrevMusicFile == null)
+                    {
+                        // This is the beginning of a chain
+                        SetPlaySymbolTransformForHeader(mf);
+                        if (PlaySymbol.FillContains(mousePos))
+                            return mf;
+                    }
+                }
+            }
+            return null;
+        }
+
 
         protected override void OnPointerMoved(PointerEventArgs e)
         {
@@ -291,18 +323,28 @@ namespace PlaylistEditor.Views
                 case CurrentMouseDownActionEnum.None:
                     MusicFile OldMouseOverMusicFile = MouseOverMusicFile;
                     MouseOverSymbol OldMouseOverElement = MouseOverElement;
-                    MouseOverMusicFile = GetMusicFileUnderMousePointer(mousePos);
-                    if (MouseOverMusicFile == null)
+                    MouseOverMusicFile = GetChainHeaderUnderMousePointer(mousePos);
+                    if (MouseOverMusicFile != null)
                     {
-                        MouseOverMusicFile = GetTransitionUnderMousePointer(mousePos);
-                        MouseOverElement = (MouseOverMusicFile != null) ? MouseOverSymbol.PlayTransition : MouseOverSymbol.None;
+                        MouseOverElement = MouseOverSymbol.PlayAllTransitionsInChain;
                     }
                     else
                     {
-                        MouseOverElement = GetMouseOverSymbol(MouseOverMusicFile, mousePos);
-                        if (MouseOverElement == MouseOverSymbol.None)
+                        // Are we over a standard file?
+                        MouseOverMusicFile = GetMusicFileUnderMousePointer(mousePos);
+                        if (MouseOverMusicFile == null)
                         {
-                            MouseOverMusicFile = null;  // We were close to the box but not inside it
+                            // Are we over a transition between files?
+                            MouseOverMusicFile = GetTransitionUnderMousePointer(mousePos);
+                            MouseOverElement = (MouseOverMusicFile != null) ? MouseOverSymbol.PlayTransition : MouseOverSymbol.None;
+                        }
+                        else
+                        {
+                            MouseOverElement = GetMouseOverSymbol(MouseOverMusicFile, mousePos);
+                            if (MouseOverElement == MouseOverSymbol.None)
+                            {
+                                MouseOverMusicFile = null;  // We were close to the box but not inside it
+                            }
                         }
                     }
                     viewModel.SelectedItem = MouseOverMusicFile;
@@ -351,12 +393,29 @@ namespace PlaylistEditor.Views
 
             var transform = context.PushPreTransform(CanvasToScreenTransform.Value);
 
-            // Firstly, draw all of the files
+            // Firstly, draw all of the files,
             foreach (var mf in viewModel.PlacedItems)
             {
+                // Draw the header if this is the start of a chain
+                if (mf.NextMusicFile != null && mf.PrevMusicFile == null)
+                {
+                    Rect header = new Rect(mf.CanvasX,
+                                           mf.CanvasY - HeaderSize.Height,
+                                           HeaderSize.Width,
+                                           HeaderSize.Height);
+                    context.FillRectangle(GlaucosBrush, header);
+                    context.DrawRectangle(BlackPen, header);
+
+                    SetPlaySymbolTransformForHeader(mf);
+                    context.DrawGeometry(Brushes.Black,
+                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayAllTransitionsInChain) ? HighlightPen : BlackPen,
+                                         PlaySymbol);
+                }
+
+                // Now draw the actual item, incl the play icons and connector points
                 Rect r = new Rect(mf.CanvasPosition, DrawSize);
                 context.FillRectangle(Brushes.AliceBlue, r);
-                if (mf == MouseOverMusicFile && MouseOverElement != MouseOverSymbol.PlayTransition)
+                if (mf == MouseOverMusicFile && MouseOverElement != MouseOverSymbol.PlayTransition && MouseOverElement != MouseOverSymbol.PlayAllTransitionsInChain)
                     context.DrawRectangle(HighlightPen, r);
                 context.DrawRectangle(BlackPen, r);
 
@@ -445,6 +504,13 @@ namespace PlaylistEditor.Views
             TranslateTransform playConnectionTransform = new TranslateTransform((x0+x1)/2 - PlayWidth/2,
                                                                                 (y0+y1)/2 - PlayHeight/2);
             PlaySymbol.Transform = playConnectionTransform;
+        }
+
+        private void SetPlaySymbolTransformForHeader(MusicFile musicFile)
+        {
+            var playChainTransform = new TranslateTransform(musicFile.CanvasX + (HeaderSize.Width - PlayWidth)/2,
+                                                            musicFile.CanvasY - HeaderSize.Height + 2);
+            PlaySymbol.Transform = playChainTransform;
         }
 
         private void SetConnectionPointSymbolTransformForInward(MusicFile musicFile)

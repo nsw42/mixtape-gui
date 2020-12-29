@@ -31,12 +31,13 @@ namespace PlaylistEditor.Models
             set { CanvasX = value.X; CanvasY=value.Y; }
         }
 
+        public MusicFile PrevMusicFile { get; set; }
         public MusicFile NextMusicFile { get; set; }
 
         public MusicFile()
         {
             CanvasX = CanvasY = 0;
-            NextMusicFile = null;
+            PrevMusicFile = NextMusicFile = null;
         }
 
         public MusicFile(Project project, string sourceFile) : this()

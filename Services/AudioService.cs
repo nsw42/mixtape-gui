@@ -1,4 +1,5 @@
 #define MAC
+using System.Collections.Generic;
 using System.Diagnostics;
 using NAudio.Wave;
 using System.Threading;
@@ -8,14 +9,14 @@ namespace PlaylistEditor.Services
     public class AudioService
     {
         private static CancellationTokenSource CancellationToken = null;
-        private static string[] AudioFiles;
+        private static List<string> AudioFiles;
 
 #if MAC
         private static void PlaybackThread(object obj)
         {
             CancellationToken token = (CancellationToken)obj;
             int playIndex = 0;
-            while (playIndex < AudioFiles.Length && !token.IsCancellationRequested)
+            while (playIndex < AudioFiles.Count && !token.IsCancellationRequested)
             {
                 string audioFile = AudioFiles[playIndex++];
                 var startInfo = new ProcessStartInfo("afplay", $"\"{audioFile}\"");
@@ -51,11 +52,11 @@ namespace PlaylistEditor.Services
 
         public static void StartPlayingFile(string filename)
         {
-            string[] files = new string[] { filename };
+            List<string> files = new List<string> { filename };
             StartPlayingFileList(files);
         }
 
-        public static void StartPlayingFileList(string[] files)
+        public static void StartPlayingFileList(List<string> files)
         {
             StopPlaying();
             CancellationToken = new CancellationTokenSource();

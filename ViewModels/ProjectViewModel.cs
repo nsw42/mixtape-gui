@@ -109,6 +109,7 @@ namespace PlaylistEditor.ViewModels
 
         public void AddConnection(MusicFile from, MusicFile to)
         {
+            // Are we inserting a file into the middle of an existing link?
             if (to != null)
             {
                 foreach (var mf in Project.MusicFiles)
@@ -116,10 +117,26 @@ namespace PlaylistEditor.ViewModels
                     if (mf != from && mf.NextMusicFile == to)
                     {
                         mf.NextMusicFile = from;
+                        if (from != null)
+                        {
+                            // This should always be true
+                            from.PrevMusicFile = mf;
+                        }
                     }
                 }
             }
+            // Are we removing an existing link?
+            var oldNext = from.NextMusicFile;
+            if (oldNext != null)
+            {
+                oldNext.PrevMusicFile = null;
+            }
+            // Set up the desired forwards/backwards link
             from.NextMusicFile = to;
+            if (to != null)
+            {
+                to.PrevMusicFile = from;
+            }
         }
     }
 }
