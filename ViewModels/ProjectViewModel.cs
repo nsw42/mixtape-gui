@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia;
 using ReactiveUI;
 using PlaylistEditor.Models;
@@ -14,8 +15,6 @@ namespace PlaylistEditor.ViewModels
         public string Title { get {
             return Project.ProjectDirectory;
         } }
-
-
 
         public const double ScrollMargin = 100;
 
@@ -60,6 +59,11 @@ namespace PlaylistEditor.ViewModels
 
             PlacedItems = new ObservableCollection<MusicFile>(project.MusicFiles.FindAll((musicFile) => (musicFile.CanvasX != 0 && musicFile.CanvasY != 0)));
             UnplacedItems = new ObservableCollection<MusicFile>(project.MusicFiles.FindAll((musicFile) => (musicFile.CanvasX == 0 && musicFile.CanvasY == 0)));
+
+            CanvasX0 = PlacedItems.Min(mf => mf.CanvasX);
+            CanvasX1 = PlacedItems.Max(mf => mf.CanvasX);
+            CanvasY0 = PlacedItems.Min(mf => mf.CanvasY);
+            CanvasY1 = PlacedItems.Max(mf => mf.CanvasY);
         }
 
         public void AddFile(string filename)
