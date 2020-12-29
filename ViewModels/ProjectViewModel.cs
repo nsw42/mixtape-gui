@@ -62,10 +62,10 @@ namespace PlaylistEditor.ViewModels
             PlacedItems = new ObservableCollection<MusicFile>(project.MusicFiles.FindAll((musicFile) => (musicFile.CanvasX != 0 && musicFile.CanvasY != 0)));
             UnplacedItems = new ObservableCollection<MusicFile>(project.MusicFiles.FindAll((musicFile) => (musicFile.CanvasX == 0 && musicFile.CanvasY == 0)));
 
-            CanvasX0 = PlacedItems.Min(mf => mf.CanvasX);
-            CanvasX1 = PlacedItems.Max(mf => mf.CanvasX);
-            CanvasY0 = PlacedItems.Min(mf => mf.CanvasY);
-            CanvasY1 = PlacedItems.Max(mf => mf.CanvasY);
+            CanvasX0 = (PlacedItems.Count > 0) ? PlacedItems.Min(mf => mf.CanvasX) : 0;
+            CanvasX1 = (PlacedItems.Count > 0) ? PlacedItems.Max(mf => mf.CanvasX) : 0;
+            CanvasY0 = (PlacedItems.Count > 0) ? PlacedItems.Min(mf => mf.CanvasY) : 0;
+            CanvasY1 = (PlacedItems.Count > 0) ? PlacedItems.Max(mf => mf.CanvasY) : 0;
         }
 
         public void AddFile(string filename)
