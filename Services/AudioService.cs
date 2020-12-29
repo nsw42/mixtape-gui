@@ -57,15 +57,21 @@ namespace PlaylistEditor.Services
 
         public static void StartPlayingFileList(string[] files)
         {
+            StopPlaying();
+            CancellationToken = new CancellationTokenSource();
+            AudioFiles = files;
+            ThreadPool.QueueUserWorkItem(new WaitCallback(PlaybackThread), CancellationToken.Token);
+        }
+
+        public static void StopPlaying()
+        {
             if (CancellationToken != null)
             {
                 CancellationToken.Cancel();
                 Thread.Sleep(500);
                 CancellationToken.Dispose();
+                CancellationToken = null;
             }
-            CancellationToken = new CancellationTokenSource();
-            AudioFiles = files;
-            ThreadPool.QueueUserWorkItem(new WaitCallback(PlaybackThread), CancellationToken.Token);
         }
     }
 }

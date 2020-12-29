@@ -5,6 +5,7 @@ using Avalonia;
 using ReactiveUI;
 using PlaylistEditor.Models;
 using PlaylistEditor.Services;
+using System.Reactive;
 
 namespace PlaylistEditor.ViewModels
 {
@@ -45,6 +46,8 @@ namespace PlaylistEditor.ViewModels
         public ObservableCollection<MusicFile> PlacedItems { get; }
         public ObservableCollection<MusicFile> UnplacedItems { get; }
 
+        public ReactiveCommand<Unit, Unit> StopPlayingCommand {get; }
+
         public ProjectViewModel(Project project)
         {
             Project = project;
@@ -66,6 +69,8 @@ namespace PlaylistEditor.ViewModels
             CanvasX1 = (PlacedItems.Count > 0) ? PlacedItems.Max(mf => mf.CanvasX) : 0;
             CanvasY0 = (PlacedItems.Count > 0) ? PlacedItems.Min(mf => mf.CanvasY) : 0;
             CanvasY1 = (PlacedItems.Count > 0) ? PlacedItems.Max(mf => mf.CanvasY) : 0;
+
+            StopPlayingCommand = ReactiveCommand.Create(() => AudioService.StopPlaying());
         }
 
         public void AddFile(string filename)

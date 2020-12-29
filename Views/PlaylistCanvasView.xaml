@@ -16,8 +16,6 @@
                      VerticalAlignment="Stretch"
                      DragDrop.AllowDrop="True"
                      Background="Transparent"
-                     MinWidth="{Binding $parent.HorizontalScrollBarViewportSize}"
-                     MinHeight="{Binding $parent.VerticalScrollBarViewportSize}"
                      Width="{Binding VisibleWidth}"
                      Height="{Binding VisibleHeight}">
         </UserControl>
