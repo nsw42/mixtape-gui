@@ -30,5 +30,16 @@ namespace PlaylistEditor.Views
         {
             Close();
         }
+
+        public void OnDeleteItem(object sender, EventArgs args)
+        {
+            if (DataContext is ProjectViewModel viewModel)
+            {
+                if (viewModel.SelectedItem != null)
+                {
+                    viewModel.RemoveFile(viewModel.SelectedItem);
+                }
+            }
+        }
     }
 }

@@ -20,7 +20,16 @@
                             Clicked="OnCloseClicked" />
           </NativeMenu>
         </NativeMenuItem.Menu>
-      </NativeMenuItem>
+      </NativeMenuItem>  <!-- File -->
+      <NativeMenuItem Header="Edit">
+        <NativeMenuItem.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Delete"
+                            Gesture="Delete"
+                            Clicked="OnDeleteItem"/>
+          </NativeMenu>
+        </NativeMenuItem.Menu>
+      </NativeMenuItem> <!-- Edit -->
     </NativeMenu>
   </NativeMenu.Menu>
 

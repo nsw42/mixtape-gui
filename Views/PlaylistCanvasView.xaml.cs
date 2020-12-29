@@ -301,6 +301,7 @@ namespace PlaylistEditor.Views
                             MouseOverMusicFile = null;  // We were close to the box but not inside it
                         }
                     }
+                    viewModel.SelectedItem = MouseOverMusicFile;
                     if (MouseOverMusicFile != OldMouseOverMusicFile || MouseOverElement != OldMouseOverElement)
                     {
                         InvalidateVisual();

@@ -24,8 +24,14 @@ namespace PlaylistEditor.Models
             ProjectDirectory = projdir;
         }
 
-        public void AddMusicFile(MusicFile musicFile) {
+        public void AddMusicFile(MusicFile musicFile)
+        {
             MusicFiles.Add(musicFile);
+        }
+
+        public void Remove(MusicFile musicFile)
+        {
+            MusicFiles.Remove(musicFile);
         }
     }
 }

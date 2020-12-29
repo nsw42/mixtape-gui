@@ -16,6 +16,8 @@ namespace PlaylistEditor.ViewModels
             return Project.ProjectDirectory;
         } }
 
+        public MusicFile SelectedItem { get; set; }
+
         public const double ScrollMargin = 100;
 
         private double canvasX0;
@@ -91,6 +93,13 @@ namespace PlaylistEditor.ViewModels
                 UnplacedItems.Remove(musicFile);
                 PlacedItems.Add(musicFile);
             }
+        }
+
+        public void RemoveFile(MusicFile musicFile)
+        {
+            Project.Remove(musicFile);
+            UnplacedItems.Remove(musicFile);
+            PlacedItems.Remove(musicFile);
         }
     }
 }
