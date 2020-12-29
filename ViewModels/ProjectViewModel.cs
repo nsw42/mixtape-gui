@@ -101,5 +101,20 @@ namespace PlaylistEditor.ViewModels
             UnplacedItems.Remove(musicFile);
             PlacedItems.Remove(musicFile);
         }
+
+        public void AddConnection(MusicFile from, MusicFile to)
+        {
+            if (to != null)
+            {
+                foreach (var mf in Project.MusicFiles)
+                {
+                    if (mf != from && mf.NextMusicFile == to)
+                    {
+                        mf.NextMusicFile = null;
+                    }
+                }
+            }
+            from.NextMusicFile = to;
+        }
     }
 }

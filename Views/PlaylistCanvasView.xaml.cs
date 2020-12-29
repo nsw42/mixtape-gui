@@ -171,15 +171,19 @@ namespace PlaylistEditor.Views
         {
             e.Handled = true;
 
-            if (CurrentMouseDownAction == CurrentMouseDownActionEnum.DrawingConnection &&
-                DrawingConnectionFromMusicFile != null)
+            if (DataContext is ProjectViewModel viewModel)
             {
-                DrawingConnectionFromMusicFile.NextMusicFile = DrawingConnectionToMusicFile;  // Note that this can be null
+                if (CurrentMouseDownAction == CurrentMouseDownActionEnum.DrawingConnection &&
+                    DrawingConnectionFromMusicFile != null)
+                {
+                    viewModel.AddConnection(DrawingConnectionFromMusicFile, DrawingConnectionToMusicFile);
+                }
             }
 
             CurrentMouseDownAction = CurrentMouseDownActionEnum.None;
             MovingMusicFile = DrawingConnectionFromMusicFile = DrawingConnectionToMusicFile = null;
-            OnPointerMoved(e); // recalculate (and hence highlight) the file under the pointer
+            OnPointerMoved(e); // recalculate the file under the pointer
+            InvalidateVisual();
             base.OnPointerReleased(e);
         }
 
