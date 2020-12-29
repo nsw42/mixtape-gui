@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using ReactiveUI;
 
-namespace PlaylistEditor.ViewModels
+namespace MixtapeGui.ViewModels
 {
     public class ViewModelBase : ReactiveObject
     {

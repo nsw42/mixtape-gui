@@ -6,11 +6,11 @@ using ReactiveUI;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using PlaylistEditor.Models;
-using PlaylistEditor.Services;
-using PlaylistEditor.Views;
+using MixtapeGui.Models;
+using MixtapeGui.Services;
+using MixtapeGui.Views;
 
-namespace PlaylistEditor.ViewModels
+namespace MixtapeGui.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {

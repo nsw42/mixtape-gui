@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using PlaylistEditor.ViewModels;
+using MixtapeGui.ViewModels;
 
-namespace PlaylistEditor.Views
+namespace MixtapeGui.Views
 {
     public class MainWindow : Window
     {

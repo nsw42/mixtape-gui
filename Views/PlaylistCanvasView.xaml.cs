@@ -8,11 +8,11 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using ReactiveUI;
-using PlaylistEditor.Models;
-using PlaylistEditor.Services;
-using PlaylistEditor.ViewModels;
+using MixtapeGui.Models;
+using MixtapeGui.Services;
+using MixtapeGui.ViewModels;
 
-namespace PlaylistEditor.Views
+namespace MixtapeGui.Views
 {
     public class PlaylistCanvasView : UserControl
     {

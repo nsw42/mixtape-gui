@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace PlaylistEditor.Models
+namespace MixtapeGui.Models
 {
     public class Project
     {

@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using PlaylistEditor.Models;
+using MixtapeGui.Models;
 
-namespace PlaylistEditor.Services
+namespace MixtapeGui.Services
 {
     public class MusicFilePOCO
     {

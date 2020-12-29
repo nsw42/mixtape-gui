@@ -3,11 +3,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia;
 using ReactiveUI;
-using PlaylistEditor.Models;
-using PlaylistEditor.Services;
+using MixtapeGui.Models;
+using MixtapeGui.Services;
 using System.Reactive;
 
-namespace PlaylistEditor.ViewModels
+namespace MixtapeGui.ViewModels
 {
     public class ProjectViewModel : ViewModelBase
     {

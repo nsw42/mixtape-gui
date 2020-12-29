@@ -1,10 +1,10 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using PlaylistEditor.ViewModels;
-using PlaylistEditor.Views;
+using MixtapeGui.ViewModels;
+using MixtapeGui.Views;
 
-namespace PlaylistEditor
+namespace MixtapeGui
 {
     public class App : Application
     {

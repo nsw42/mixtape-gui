@@ -6,7 +6,7 @@ using Avalonia;
 using NAudio.Wave;
 using NLayer.NAudioSupport;
 
-namespace PlaylistEditor.Models
+namespace MixtapeGui.Models
 {
     public class MusicFile
     {

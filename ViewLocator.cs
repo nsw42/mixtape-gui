@@ -4,9 +4,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using PlaylistEditor.ViewModels;
+using MixtapeGui.ViewModels;
 
-namespace PlaylistEditor
+namespace MixtapeGui
 {
     public class ViewLocator : IDataTemplate
     {

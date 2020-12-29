@@ -1,7 +1,7 @@
 using System.IO;
-using PlaylistEditor.Models;
+using MixtapeGui.Models;
 
-namespace PlaylistEditor.Services
+namespace MixtapeGui.Services
 {
     public class PlaylistService
     {
