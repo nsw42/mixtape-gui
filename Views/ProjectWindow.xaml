@@ -6,59 +6,59 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PlaylistEditor.Views.ProjectWindow"
         Title="{Binding Title}">
-  <NativeMenu.Menu>
-    <NativeMenu>
-      <NativeMenuItem Header="File">
-        <NativeMenuItem.Menu>
-          <NativeMenu>
-            <NativeMenuItem Header="Save"
-                            Gesture="CMD+S"
-                            Clicked="OnSaveClicked" />
-            <NativeMenuItemSeperator/>
-            <NativeMenuItem Header="Close Window"
-                            Gesture="CMD+W"
-                            Clicked="OnCloseClicked" />
-          </NativeMenu>
-        </NativeMenuItem.Menu>
-      </NativeMenuItem>  <!-- File -->
-      <NativeMenuItem Header="Edit">
-        <NativeMenuItem.Menu>
-          <NativeMenu>
-            <NativeMenuItem Header="Delete"
-                            Gesture="Delete"
-                            Clicked="OnDeleteItem"/>
-          </NativeMenu>
-        </NativeMenuItem.Menu>
-      </NativeMenuItem> <!-- Edit -->
-    </NativeMenu>
-  </NativeMenu.Menu>
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="File">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Save"
+                                        Gesture="CMD+S"
+                                        Clicked="OnSaveClicked" />
+                        <NativeMenuItemSeperator/>
+                        <NativeMenuItem Header="Close Window"
+                                        Gesture="CMD+W"
+                                        Clicked="OnCloseClicked" />
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem>  <!-- File -->
+            <NativeMenuItem Header="Edit">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Delete"
+                                        Gesture="Delete"
+                                        Clicked="OnDeleteItem"/>
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem> <!-- Edit -->
+        </NativeMenu>
+    </NativeMenu.Menu>
 
-  <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-    <!-- Top: Toolbar -->
-    <StackPanel DockPanel.Dock="Top" Name="Toolbar" Background="LightGray" Orientation="Horizontal" Height="44">
-      <Button Name="StopPlaying" Margin="10" HorizontalAlignment="Center" Width="36" Command="{Binding StopPlayingCommand}">
-        <Image Source="/Assets/pause.png" Width="20"
-               Height="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
-      </Button>
-    </StackPanel>
-    <!-- Bottom: main content: expands to fill available space -->
-    <Grid DockPanel.Dock="Bottom" Margin="2" ShowGridLines="True">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="300"/>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
+    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <!-- Top: Toolbar -->
+        <StackPanel DockPanel.Dock="Top" Name="Toolbar" Background="LightGray" Orientation="Horizontal" Height="44">
+            <Button Name="StopPlaying" Margin="10" HorizontalAlignment="Center" Width="36" Command="{Binding StopPlayingCommand}">
+                <Image Source="/Assets/pause.png" Width="20"
+                       Height="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Button>
+        </StackPanel>
+        <!-- Bottom: main content: expands to fill available space -->
+        <Grid DockPanel.Dock="Bottom" Margin="2" ShowGridLines="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-      <!-- Left column: the list of files -->
-      <views:ProjectFileListView Name="FileListView" Grid.Column="0"/>
+            <!-- Left column: the list of files -->
+            <views:ProjectFileListView Name="FileListView" Grid.Column="0"/>
 
-      <!-- Splitter -->
-      <GridSplitter HorizontalAlignment="Right"
-                    VerticalAlignment="Stretch"
-                    Grid.Column="1"  Width="5" Background="Transparent"/>
+            <!-- Splitter -->
+            <GridSplitter HorizontalAlignment="Right"
+                          VerticalAlignment="Stretch"
+                          Grid.Column="1"  Width="5" Background="Transparent"/>
 
-      <!-- Right column: the playlist -->
-      <views:PlaylistCanvasView Name="PlaylistCanvasView" Grid.Column="2"/>
-    </Grid>
-  </DockPanel>
+            <!-- Right column: the playlist -->
+            <views:PlaylistCanvasView Name="PlaylistCanvasView" Grid.Column="2"/>
+        </Grid>
+    </DockPanel>
 </Window>

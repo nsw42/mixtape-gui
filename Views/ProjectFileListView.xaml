@@ -5,21 +5,21 @@
              mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="300"
              x:Class="PlaylistEditor.Views.ProjectFileListView">
 
-  <DockPanel Grid.Column="0" VerticalAlignment="Stretch" LastChildFill="True">
-    <Border DockPanel.Dock="Bottom"
-            Background="LightSlateGray" Padding="16"
-            DragDrop.AllowDrop="True">
-      <TextBlock HorizontalAlignment="Center" Name="FileDropArea">Add file(s)</TextBlock>
-    </Border>
+    <DockPanel Grid.Column="0" VerticalAlignment="Stretch" LastChildFill="True">
+        <Border DockPanel.Dock="Bottom"
+                Background="LightSlateGray" Padding="16"
+                DragDrop.AllowDrop="True">
+            <TextBlock HorizontalAlignment="Center" Name="FileDropArea">Add file(s)</TextBlock>
+        </Border>
 
-    <ScrollViewer HorizontalAlignment="Stretch" DockPanel.Dock="Top">
-      <ItemsControl Name="ItemsControls" Items="{Binding UnplacedItems}" PointerPressed="StartDrag">
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding Title}"/>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-    </ScrollViewer>
-  </DockPanel>
+        <ScrollViewer HorizontalAlignment="Stretch" DockPanel.Dock="Top">
+            <ItemsControl Name="ItemsControls" Items="{Binding UnplacedItems}" PointerPressed="StartDrag">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding Title}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>
