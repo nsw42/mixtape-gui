@@ -115,7 +115,7 @@ namespace PlaylistEditor.ViewModels
                 {
                     if (mf != from && mf.NextMusicFile == to)
                     {
-                        mf.NextMusicFile = null;
+                        mf.NextMusicFile = from;
                     }
                 }
             }
