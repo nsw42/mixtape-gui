@@ -23,6 +23,7 @@ namespace PlaylistEditor.Views
             PlayOutro,
             InwardConnectionPoint,
             OutwardConnectionPoint,
+            PlayTransition,
         };
 
         private enum CurrentMouseDownActionEnum
@@ -54,6 +55,7 @@ namespace PlaylistEditor.Views
         private readonly Pen BlackPen = new Pen(Colors.Black.ToUint32());
         private readonly Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
         private readonly Point TextOffset = new Point(0, 2);
+        private const int PlayWidth = 20;
         private const int PlayHeight = 20;
         private Geometry PlaySymbol;
         private const int ConnectionPointSize = 12;
@@ -69,7 +71,7 @@ namespace PlaylistEditor.Views
             // Set up geometries for rendering
             Point p0 = new Point(0, 0);
             Point p1 = new Point(0, PlayHeight);
-            Point p2 = new Point(PlayHeight, PlayHeight / 2);
+            Point p2 = new Point(PlayWidth, PlayHeight / 2);
             PlaySymbol = new PolylineGeometry(new List<Point>{p0, p1, p2}, true);
 
             ConnectionPointSymbol = new EllipseGeometry(new Rect(0, 0, ConnectionPointSize, ConnectionPointSize));
@@ -156,6 +158,10 @@ namespace PlaylistEditor.Views
                         CurrentMouseDownAction = CurrentMouseDownActionEnum.DrawingConnection;
                         DrawingConnectionFromMusicFile = MouseOverMusicFile;
                         break;
+                    case MouseOverSymbol.PlayTransition:
+                        string[] files = new string[] { MouseOverMusicFile.CachedOutroWavFile, MouseOverMusicFile.NextMusicFile.CachedIntroWavFile };
+                        AudioService.StartPlayingFileList(files);
+                        break;
                 }
             }
             base.OnPointerPressed(e);
@@ -229,6 +235,24 @@ namespace PlaylistEditor.Views
             return null;
         }
 
+        private MusicFile GetTransitionUnderMousePointer(Point mousePos)
+        {
+            if (DataContext is ProjectViewModel viewModel)
+            {
+                foreach (var mf in viewModel.PlacedItems)
+                {
+                    var next = mf.NextMusicFile;
+                    if (next == null)
+                        continue;
+                    SetPlaySymbolTransformForConnection(mf, next);
+                    if (PlaySymbol.FillContains(mousePos))
+                        return mf;
+                }
+            }
+            return null;
+        }
+
+
         protected override void OnPointerMoved(PointerEventArgs e)
         {
             Point mousePos = e.GetPosition(this);
@@ -266,7 +290,8 @@ namespace PlaylistEditor.Views
                     MouseOverMusicFile = GetMusicFileUnderMousePointer(mousePos);
                     if (MouseOverMusicFile == null)
                     {
-                        MouseOverElement = MouseOverSymbol.None;
+                        MouseOverMusicFile = GetTransitionUnderMousePointer(mousePos);
+                        MouseOverElement = (MouseOverMusicFile != null) ? MouseOverSymbol.PlayTransition : MouseOverSymbol.None;
                     }
                     else
                     {
@@ -326,7 +351,7 @@ namespace PlaylistEditor.Views
             {
                 Rect r = new Rect(mf.CanvasPosition, DrawSize);
                 context.FillRectangle(Brushes.AliceBlue, r);
-                if (mf == MouseOverMusicFile)
+                if (mf == MouseOverMusicFile && MouseOverElement != MouseOverSymbol.PlayTransition)
                     context.DrawRectangle(HighlightPen, r);
                 context.DrawRectangle(BlackPen, r);
 
@@ -362,13 +387,23 @@ namespace PlaylistEditor.Views
             // Then overlay all of the connections
             foreach (var mf in viewModel.PlacedItems)
             {
+                // Don't draw an existing connection if we're in the process of drawing
+                // a replacement
                 if (mf != DrawingConnectionFromMusicFile && mf.NextMusicFile != null)
                 {
                     var outwardConnectionPoint = new Point(mf.CanvasX + DrawSize.Width,
                                                             mf.CanvasY + DrawSize.Height);
                     var next = mf.NextMusicFile;
                     var inwardConnectionPoint = next.CanvasPosition;
+                    bool isHighlighted = (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayTransition);
+                    if (isHighlighted)
+                        context.DrawLine(HighlightPen, outwardConnectionPoint, inwardConnectionPoint);
                     context.DrawLine(BlackPen, outwardConnectionPoint, inwardConnectionPoint);
+
+                    SetPlaySymbolTransformForConnection(mf, next);
+                    context.DrawGeometry(Brushes.Black,
+                                         isHighlighted ? HighlightPen : BlackPen,
+                                         PlaySymbol);
                 }
             }
 
@@ -391,9 +426,20 @@ namespace PlaylistEditor.Views
 
         private void SetPlaySymbolTransformForOutro(MusicFile musicFile)
         {
-            TranslateTransform playOutroTransform = new TranslateTransform(musicFile.CanvasX + DrawSize.Width - 5 - PlayHeight,
+            TranslateTransform playOutroTransform = new TranslateTransform(musicFile.CanvasX + DrawSize.Width - 5 - PlayWidth,
                                                                            musicFile.CanvasY + DrawSize.Height - 5 - PlayHeight);
             PlaySymbol.Transform = playOutroTransform;
+        }
+
+        private void SetPlaySymbolTransformForConnection(MusicFile from, MusicFile to)
+        {
+            double x0 = from.CanvasX + DrawSize.Width;
+            double x1 = to.CanvasX;
+            double y0 = from.CanvasY + DrawSize.Height;
+            double y1 = to.CanvasY;
+            TranslateTransform playConnectionTransform = new TranslateTransform((x0+x1)/2 - PlayWidth/2,
+                                                                                (y0+y1)/2 - PlayHeight/2);
+            PlaySymbol.Transform = playConnectionTransform;
         }
 
         private void SetConnectionPointSymbolTransformForInward(MusicFile musicFile)
