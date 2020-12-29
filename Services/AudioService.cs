@@ -8,23 +8,28 @@ namespace PlaylistEditor.Services
     public class AudioService
     {
         private static CancellationTokenSource CancellationToken = null;
-        private static string AudioFile;
+        private static string[] AudioFiles;
 
 #if MAC
         private static void PlaybackThread(object obj)
         {
             CancellationToken token = (CancellationToken)obj;
-            var startInfo = new ProcessStartInfo("afplay", $"\"{AudioFile}\"");
-            startInfo.CreateNoWindow = true;
-            startInfo.UseShellExecute = false;
-            var process = Process.Start(startInfo);
-            while (!process.HasExited && !token.IsCancellationRequested)
+            int playIndex = 0;
+            while (playIndex < AudioFiles.Length && !token.IsCancellationRequested)
             {
-                Thread.Sleep(250);
-            }
-            if (!process.HasExited)
-            {
-                process.Kill();
+                string audioFile = AudioFiles[playIndex++];
+                var startInfo = new ProcessStartInfo("afplay", $"\"{audioFile}\"");
+                startInfo.CreateNoWindow = true;
+                startInfo.UseShellExecute = false;
+                var process = Process.Start(startInfo);
+                while (!process.HasExited && !token.IsCancellationRequested)
+                {
+                    Thread.Sleep(250);
+                }
+                if (!process.HasExited)
+                {
+                    process.Kill();
+                }
             }
         }
 #else
@@ -46,6 +51,12 @@ namespace PlaylistEditor.Services
 
         public static void StartPlayingFile(string filename)
         {
+            string[] files = new string[] { filename };
+            StartPlayingFileList(files);
+        }
+
+        public static void StartPlayingFileList(string[] files)
+        {
             if (CancellationToken != null)
             {
                 CancellationToken.Cancel();
@@ -53,7 +64,7 @@ namespace PlaylistEditor.Services
                 CancellationToken.Dispose();
             }
             CancellationToken = new CancellationTokenSource();
-            AudioFile = filename;
+            AudioFiles = files;
             ThreadPool.QueueUserWorkItem(new WaitCallback(PlaybackThread), CancellationToken.Token);
         }
     }
