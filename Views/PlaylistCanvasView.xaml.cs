@@ -76,7 +76,7 @@ namespace MixtapeGui.Views
         private ScrollViewer ScrollWidget;
         private TranslateTransform CanvasToScreenTransform;
         private TranslateTransform ScreenToCanvasTransform;
-        private HashSet<MusicFile> SelectedMusicFiles = new HashSet<MusicFile>();  // TODO: This probably belongs in the VM
+        private HashSet<MusicFile> SelectedMusicFiles = new HashSet<MusicFile>();  // TODO: This probably belongs in the VM - merge with viewModel.SelectedItem
 
         public PlaylistCanvasView()
         {
@@ -392,7 +392,18 @@ namespace MixtapeGui.Views
                             {
                                 MouseOverMusicFile = null;  // We were close to the box but not inside it
                             }
+                            else
+                            {
+                                if (SelectedMusicFiles.Count == 0)
+                                {
+                                    SelectedMusicFiles.Add(MouseOverMusicFile);
+                                }
+                            }
                         }
+                    }
+                    if (MouseOverMusicFile == null && SelectedMusicFiles.Count == 1)
+                    {
+                        SelectedMusicFiles.Clear();
                     }
                     viewModel.SelectedItem = MouseOverMusicFile;
                     if (MouseOverMusicFile != OldMouseOverMusicFile || MouseOverElement != OldMouseOverElement)
