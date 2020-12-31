@@ -32,7 +32,8 @@ namespace MixtapeGui.Views
         {
             None,
             MovingFile,
-            DrawingConnection
+            DrawingConnection,
+            DrawingMultipleSelectBox,
         };
 
         // properties to track state
@@ -52,12 +53,19 @@ namespace MixtapeGui.Views
         private Point DrawingConnectionCurrentMousePos;
         private MusicFile DrawingConnectionToMusicFile = null;
 
+        // properties used when CurrentMouseDownAction == DrawingMultipleSelectBox
+        private Point DrawingMultipleSelectStartPoint;
+        private Point DrawingMultipleSelectCurrentMousePos;
+
         // properties related to drawing
         private readonly Size HeaderSize = new Size(200, 24);
         private readonly Size DrawSize = new Size(200, 50);
         private readonly IBrush GlaucosBrush = new ImmutableSolidColorBrush(0xff5688c7);
         private readonly Pen BlackPen = new Pen(Colors.Black.ToUint32());
         private readonly Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
+        private Pen multipleSelectBoxPen = new Pen(Brushes.Black,  // TODO: Different colour
+                                                   1.0,
+                                                   DashStyle.Dash);
         private readonly Point TextOffset = new Point(0, 2);
         private const int PlayWidth = 20;
         private const int PlayHeight = 20;
@@ -135,17 +143,23 @@ namespace MixtapeGui.Views
         {
             e.Pointer.Capture(this);
             e.Handled = true;
-            CurrentMouseDownAction = CurrentMouseDownActionEnum.None;
-            if (MouseOverMusicFile != null) {
+            var mousePos = e.GetPosition(this);
+            mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
+            if (MouseOverMusicFile == null)
+            {
+                CurrentMouseDownAction = CurrentMouseDownActionEnum.DrawingMultipleSelectBox;
+                DrawingMultipleSelectStartPoint = mousePos;
+            }
+            else
+            {
+                CurrentMouseDownAction = CurrentMouseDownActionEnum.None;
                 switch (MouseOverElement) {
                     case MouseOverSymbol.None:
                         break;
                     case MouseOverSymbol.MoveFile:
                         CurrentMouseDownAction = CurrentMouseDownActionEnum.MovingFile;
                         MovingMusicFile = MouseOverMusicFile;
-                        var mousePos = e.GetPosition(this);
                         // System.Diagnostics.Trace.WriteLine($"mouse down: screen: {mousePos.X}, {mousePos.Y}");
-                        mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
                         // System.Diagnostics.Trace.WriteLine($"            canvas: {mousePos.X}, {mousePos.Y}");
                         MusicFileCanvasOffsetFromMousePointer = mousePos - new Point(MouseOverMusicFile.CanvasX, MouseOverMusicFile.CanvasY);
                         break;
@@ -320,6 +334,11 @@ namespace MixtapeGui.Views
                     InvalidateVisual();
                     break;
 
+                case CurrentMouseDownActionEnum.DrawingMultipleSelectBox:
+                    DrawingMultipleSelectCurrentMousePos = mousePos;
+                    InvalidateVisual();
+                    break;
+
                 case CurrentMouseDownActionEnum.None:
                     MusicFile OldMouseOverMusicFile = MouseOverMusicFile;
                     MouseOverSymbol OldMouseOverElement = MouseOverElement;
@@ -471,11 +490,18 @@ namespace MixtapeGui.Views
                 }
             }
 
-            if (CurrentMouseDownAction == CurrentMouseDownActionEnum.DrawingConnection)
+            switch (CurrentMouseDownAction)
             {
-                context.DrawLine(BlackPen,
-                                 new Point(DrawingConnectionFromMusicFile.CanvasX + DrawSize.Width, DrawingConnectionFromMusicFile.CanvasY + DrawSize.Height),
-                                 DrawingConnectionCurrentMousePos);
+                case CurrentMouseDownActionEnum.DrawingConnection:
+                    context.DrawLine(BlackPen,
+                                    new Point(DrawingConnectionFromMusicFile.CanvasX + DrawSize.Width, DrawingConnectionFromMusicFile.CanvasY + DrawSize.Height),
+                                    DrawingConnectionCurrentMousePos);
+                    break;
+
+                case CurrentMouseDownActionEnum.DrawingMultipleSelectBox:
+                    var selectBox = new Rect(DrawingMultipleSelectStartPoint, DrawingMultipleSelectCurrentMousePos);
+                    context.DrawRectangle(multipleSelectBoxPen, selectBox);
+                    break;
             }
 
             transform.Dispose();
