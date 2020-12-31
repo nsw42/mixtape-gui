@@ -75,6 +75,7 @@ namespace MixtapeGui.Views
         private ScrollViewer ScrollWidget;
         private TranslateTransform CanvasToScreenTransform;
         private TranslateTransform ScreenToCanvasTransform;
+        private HashSet<MusicFile> SelectedMusicFiles = new HashSet<MusicFile>();  // TODO: This probably belongs in the VM
 
         public PlaylistCanvasView()
         {
@@ -201,10 +202,28 @@ namespace MixtapeGui.Views
 
             if (DataContext is ProjectViewModel viewModel)
             {
-                if (CurrentMouseDownAction == CurrentMouseDownActionEnum.DrawingConnection &&
-                    DrawingConnectionFromMusicFile != null)
+                switch (CurrentMouseDownAction)
                 {
-                    viewModel.AddConnection(DrawingConnectionFromMusicFile, DrawingConnectionToMusicFile);
+                    case CurrentMouseDownActionEnum.DrawingConnection:
+                        if (DrawingConnectionFromMusicFile != null)
+                        {
+                            viewModel.AddConnection(DrawingConnectionFromMusicFile, DrawingConnectionToMusicFile);
+                        }
+                        break;
+
+                    case CurrentMouseDownActionEnum.DrawingMultipleSelectBox:
+                        SelectedMusicFiles.Clear();
+                        var mousePos = e.GetPosition(this);
+                        mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
+                        var boundingBox = new Rect(DrawingMultipleSelectStartPoint, mousePos);
+                        foreach (var mf in viewModel.PlacedItems)
+                        {
+                            if (boundingBox.Contains(mf.CanvasPosition))
+                            {
+                                SelectedMusicFiles.Add(mf);
+                            }
+                        }
+                        break;
                 }
             }
 
@@ -434,7 +453,10 @@ namespace MixtapeGui.Views
                 // Now draw the actual item, incl the play icons and connector points
                 Rect r = new Rect(mf.CanvasPosition, DrawSize);
                 context.FillRectangle(Brushes.AliceBlue, r);
-                if (mf == MouseOverMusicFile && MouseOverElement != MouseOverSymbol.PlayTransition && MouseOverElement != MouseOverSymbol.PlayAllTransitionsInChain)
+                bool highlight = (mf == MouseOverMusicFile && MouseOverElement != MouseOverSymbol.PlayTransition && MouseOverElement != MouseOverSymbol.PlayAllTransitionsInChain);
+                if (SelectedMusicFiles.Contains(mf))
+                    highlight = true;
+                if (highlight)
                     context.DrawRectangle(HighlightPen, r);
                 context.DrawRectangle(BlackPen, r);
 
