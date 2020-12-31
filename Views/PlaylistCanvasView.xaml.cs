@@ -46,7 +46,8 @@ namespace MixtapeGui.Views
 
         // properties used when CurrentMouseDownAction == MovingFile
         private MusicFile MovingMusicFile = null;
-        private Point MusicFileCanvasOffsetFromMousePointer;
+        private Point MovingFileStartMousePosition;
+        private Dictionary<MusicFile, Point> MovingFileStartFilePosition = new Dictionary<MusicFile, Point>();
 
         // properties used when CurrentMouseDownAction == DrawingConnection
         private MusicFile DrawingConnectionFromMusicFile = null;
@@ -146,6 +147,8 @@ namespace MixtapeGui.Views
             e.Handled = true;
             var mousePos = e.GetPosition(this);
             mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
+            // System.Diagnostics.Trace.WriteLine($"mouse down: screen: {mousePos.X}, {mousePos.Y}");
+            // System.Diagnostics.Trace.WriteLine($"            canvas: {mousePos.X}, {mousePos.Y}");
             if (MouseOverMusicFile == null)
             {
                 CurrentMouseDownAction = CurrentMouseDownActionEnum.DrawingMultipleSelectBox;
@@ -160,9 +163,11 @@ namespace MixtapeGui.Views
                     case MouseOverSymbol.MoveFile:
                         CurrentMouseDownAction = CurrentMouseDownActionEnum.MovingFile;
                         MovingMusicFile = MouseOverMusicFile;
-                        // System.Diagnostics.Trace.WriteLine($"mouse down: screen: {mousePos.X}, {mousePos.Y}");
-                        // System.Diagnostics.Trace.WriteLine($"            canvas: {mousePos.X}, {mousePos.Y}");
-                        MusicFileCanvasOffsetFromMousePointer = mousePos - new Point(MouseOverMusicFile.CanvasX, MouseOverMusicFile.CanvasY);
+                        MovingFileStartMousePosition = mousePos;
+                        foreach (var mf in SelectedMusicFiles)
+                        {
+                            MovingFileStartFilePosition[mf] = mf.CanvasPosition;
+                        }
                         break;
                     case MouseOverSymbol.PlayIntro:
                         AudioService.StartPlayingFile(MouseOverMusicFile.CachedIntroWavFile);
@@ -334,7 +339,11 @@ namespace MixtapeGui.Views
             switch (CurrentMouseDownAction)
             {
                 case CurrentMouseDownActionEnum.MovingFile:
-                    viewModel.PlaceFile(MovingMusicFile, mousePos - MusicFileCanvasOffsetFromMousePointer);
+                    var offset = mousePos - MovingFileStartMousePosition;
+                    foreach (var mf in SelectedMusicFiles)
+                    {
+                        viewModel.PlaceFile(mf, MovingFileStartFilePosition[mf] + offset);
+                    }
                     InvalidateVisual();
                     break;
 
