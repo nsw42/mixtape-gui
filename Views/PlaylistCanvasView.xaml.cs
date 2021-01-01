@@ -164,6 +164,12 @@ namespace MixtapeGui.Views
                         CurrentMouseDownAction = CurrentMouseDownActionEnum.MovingFile;
                         MovingMusicFile = MouseOverMusicFile;
                         MovingFileStartMousePosition = mousePos;
+                        if (!viewModel.SelectedItems.Contains(MouseOverMusicFile))
+                        {
+                            // There was a selection, but this item isn't in it
+                            viewModel.SelectedItems.Clear();
+                            viewModel.SelectedItems.Add(MouseOverMusicFile);
+                        }
                         foreach (var mf in viewModel.SelectedItems)
                         {
                             MovingFileStartFilePosition[mf] = mf.CanvasPosition;
@@ -392,18 +398,7 @@ namespace MixtapeGui.Views
                             {
                                 MouseOverMusicFile = null;  // We were close to the box but not inside it
                             }
-                            else
-                            {
-                                if (viewModel.SelectedItems.Count == 0)
-                                {
-                                    viewModel.SelectedItems.Add(MouseOverMusicFile);
-                                }
-                            }
                         }
-                    }
-                    if (MouseOverMusicFile == null && viewModel.SelectedItems.Count == 1)
-                    {
-                        viewModel.SelectedItems.Clear();
                     }
                     if (MouseOverMusicFile != OldMouseOverMusicFile || MouseOverElement != OldMouseOverElement)
                     {
