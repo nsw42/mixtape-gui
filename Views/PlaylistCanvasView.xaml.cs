@@ -164,7 +164,7 @@ namespace MixtapeGui.Views
                         MovingFileStartMousePosition = mousePos;
                         if (!viewModel.SelectedItems.Contains(MouseOverMusicFile))
                         {
-                            // There was a selection, but this item isn't in it
+                            // There may have been a selection but, if there was, this item isn't in it
                             viewModel.SelectedItems.Clear();
                             viewModel.SelectedItems.Add(MouseOverMusicFile);
                         }
