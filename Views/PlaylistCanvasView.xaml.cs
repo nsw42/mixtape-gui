@@ -63,7 +63,7 @@ namespace MixtapeGui.Views
         private readonly IBrush GlaucosBrush = new ImmutableSolidColorBrush(0xff5688c7);
         private readonly Pen BlackPen = new Pen(Colors.Black.ToUint32());
         private readonly Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
-        private Pen multipleSelectBoxPen = new Pen(Brushes.Black,  // TODO: Different colour
+        private Pen multipleSelectBoxPen = new Pen(Brushes.DarkBlue,
                                                    1.0,
                                                    DashStyle.Dash);
         private readonly Point TextOffset = new Point(0, 2);
