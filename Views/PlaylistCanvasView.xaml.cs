@@ -45,7 +45,6 @@ namespace MixtapeGui.Views
         private MouseOverSymbol MouseOverElement = MouseOverSymbol.None;
 
         // properties used when CurrentMouseDownAction == MovingFile
-        private MusicFile MovingMusicFile = null;
         private Point MovingFileStartMousePosition;
         private Dictionary<MusicFile, Point> MovingFileStartFilePosition = new Dictionary<MusicFile, Point>();
 
@@ -162,7 +161,6 @@ namespace MixtapeGui.Views
                         break;
                     case MouseOverSymbol.MoveFile:
                         CurrentMouseDownAction = CurrentMouseDownActionEnum.MovingFile;
-                        MovingMusicFile = MouseOverMusicFile;
                         MovingFileStartMousePosition = mousePos;
                         if (!viewModel.SelectedItems.Contains(MouseOverMusicFile))
                         {
@@ -239,7 +237,7 @@ namespace MixtapeGui.Views
             }
 
             CurrentMouseDownAction = CurrentMouseDownActionEnum.None;
-            MovingMusicFile = DrawingConnectionFromMusicFile = DrawingConnectionToMusicFile = null;
+            DrawingConnectionFromMusicFile = DrawingConnectionToMusicFile = null;
             OnPointerMoved(e); // recalculate the file under the pointer
             InvalidateVisual();
             base.OnPointerReleased(e);
