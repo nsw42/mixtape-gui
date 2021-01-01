@@ -231,7 +231,8 @@ namespace MixtapeGui.Views
                             Math.Max(DrawingMultipleSelectStartPoint.Y, mousePos.Y) - Math.Min(DrawingMultipleSelectStartPoint.Y, mousePos.Y));
                         foreach (var mf in viewModel.PlacedItems)
                         {
-                            if (boundingBox.Contains(mf.CanvasPosition))
+                            var mfRect = new Rect(mf.CanvasPosition, DrawSize);
+                            if (boundingBox.Contains(mfRect))
                             {
                                 viewModel.SelectedItems.Add(mf);
                             }
