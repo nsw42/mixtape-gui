@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia;
@@ -17,7 +18,7 @@ namespace MixtapeGui.ViewModels
             return Project.ProjectDirectory;
         } }
 
-        public MusicFile SelectedItem { get; set; }
+        public HashSet<MusicFile> SelectedItems = new HashSet<MusicFile>();
 
         public const double ScrollMargin = 100;
 
