@@ -76,7 +76,6 @@ namespace MixtapeGui.Views
         private ScrollViewer ScrollWidget;
         private TranslateTransform CanvasToScreenTransform;
         private TranslateTransform ScreenToCanvasTransform;
-        private HashSet<MusicFile> SelectedMusicFiles = new HashSet<MusicFile>();  // TODO: This probably belongs in the VM - merge with viewModel.SelectedItem
 
         public PlaylistCanvasView()
         {
@@ -149,6 +148,7 @@ namespace MixtapeGui.Views
             mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
             // System.Diagnostics.Trace.WriteLine($"mouse down: screen: {mousePos.X}, {mousePos.Y}");
             // System.Diagnostics.Trace.WriteLine($"            canvas: {mousePos.X}, {mousePos.Y}");
+            ProjectViewModel viewModel = DataContext as ProjectViewModel;
             if (MouseOverMusicFile == null)
             {
                 CurrentMouseDownAction = CurrentMouseDownActionEnum.DrawingMultipleSelectBox;
@@ -164,7 +164,7 @@ namespace MixtapeGui.Views
                         CurrentMouseDownAction = CurrentMouseDownActionEnum.MovingFile;
                         MovingMusicFile = MouseOverMusicFile;
                         MovingFileStartMousePosition = mousePos;
-                        foreach (var mf in SelectedMusicFiles)
+                        foreach (var mf in viewModel.SelectedItems)
                         {
                             MovingFileStartFilePosition[mf] = mf.CanvasPosition;
                         }
@@ -217,7 +217,7 @@ namespace MixtapeGui.Views
                         break;
 
                     case CurrentMouseDownActionEnum.DrawingMultipleSelectBox:
-                        SelectedMusicFiles.Clear();
+                        viewModel.SelectedItems.Clear();
                         var mousePos = e.GetPosition(this);
                         mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
                         var boundingBox = new Rect(DrawingMultipleSelectStartPoint, mousePos);
@@ -225,7 +225,7 @@ namespace MixtapeGui.Views
                         {
                             if (boundingBox.Contains(mf.CanvasPosition))
                             {
-                                SelectedMusicFiles.Add(mf);
+                                viewModel.SelectedItems.Add(mf);
                             }
                         }
                         break;
@@ -340,7 +340,7 @@ namespace MixtapeGui.Views
             {
                 case CurrentMouseDownActionEnum.MovingFile:
                     var offset = mousePos - MovingFileStartMousePosition;
-                    foreach (var mf in SelectedMusicFiles)
+                    foreach (var mf in viewModel.SelectedItems)
                     {
                         viewModel.PlaceFile(mf, MovingFileStartFilePosition[mf] + offset);
                     }
@@ -394,18 +394,17 @@ namespace MixtapeGui.Views
                             }
                             else
                             {
-                                if (SelectedMusicFiles.Count == 0)
+                                if (viewModel.SelectedItems.Count == 0)
                                 {
-                                    SelectedMusicFiles.Add(MouseOverMusicFile);
+                                    viewModel.SelectedItems.Add(MouseOverMusicFile);
                                 }
                             }
                         }
                     }
-                    if (MouseOverMusicFile == null && SelectedMusicFiles.Count == 1)
+                    if (MouseOverMusicFile == null && viewModel.SelectedItems.Count == 1)
                     {
-                        SelectedMusicFiles.Clear();
+                        viewModel.SelectedItems.Clear();
                     }
-                    viewModel.SelectedItem = MouseOverMusicFile;
                     if (MouseOverMusicFile != OldMouseOverMusicFile || MouseOverElement != OldMouseOverElement)
                     {
                         InvalidateVisual();
@@ -474,7 +473,7 @@ namespace MixtapeGui.Views
                 Rect r = new Rect(mf.CanvasPosition, DrawSize);
                 context.FillRectangle(Brushes.AliceBlue, r);
                 bool highlight = (mf == MouseOverMusicFile && MouseOverElement != MouseOverSymbol.PlayTransition && MouseOverElement != MouseOverSymbol.PlayAllTransitionsInChain);
-                if (SelectedMusicFiles.Contains(mf))
+                if (viewModel.SelectedItems.Contains(mf))
                     highlight = true;
                 if (highlight)
                     context.DrawRectangle(HighlightPen, r);

@@ -35,9 +35,9 @@ namespace MixtapeGui.Views
         {
             if (DataContext is ProjectViewModel viewModel)
             {
-                if (viewModel.SelectedItem != null)
+                foreach (var mf in viewModel.SelectedItems)
                 {
-                    viewModel.RemoveFile(viewModel.SelectedItem);
+                    viewModel.RemoveFile(mf);
                 }
             }
         }
