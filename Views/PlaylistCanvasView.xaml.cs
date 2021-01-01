@@ -224,7 +224,11 @@ namespace MixtapeGui.Views
                         viewModel.SelectedItems.Clear();
                         var mousePos = e.GetPosition(this);
                         mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
-                        var boundingBox = new Rect(DrawingMultipleSelectStartPoint, mousePos);
+                        var boundingBox = new Rect(
+                            Math.Min(DrawingMultipleSelectStartPoint.X, mousePos.X),
+                            Math.Min(DrawingMultipleSelectStartPoint.Y, mousePos.Y),
+                            Math.Max(DrawingMultipleSelectStartPoint.X, mousePos.X) - Math.Min(DrawingMultipleSelectStartPoint.X, mousePos.X),
+                            Math.Max(DrawingMultipleSelectStartPoint.Y, mousePos.Y) - Math.Min(DrawingMultipleSelectStartPoint.Y, mousePos.Y));
                         foreach (var mf in viewModel.PlacedItems)
                         {
                             if (boundingBox.Contains(mf.CanvasPosition))
