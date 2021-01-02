@@ -21,10 +21,10 @@ namespace ViewModels.Tests
             {
                 var expectedPrev = (index == 0) ? null : list[index - 1];
                 Assert.Equal(expectedPrev, currentNode.PrevMusicFile);
-                System.Console.WriteLine($"Equal: {currentNode.Title}.PrevMusicFile == expectedPrev {expectedPrev?.Title ?? "null"}");
+                // System.Console.WriteLine($"Equal: {currentNode.Title}.PrevMusicFile == expectedPrev {expectedPrev?.Title ?? "null"}");
                 var expectedNext = (index == list.Length - 1) ? null : list[index + 1];
                 Assert.Equal(expectedNext, currentNode.NextMusicFile);
-                System.Console.WriteLine($"Equal: {currentNode.Title}.NextMusicFile == expectedNext {expectedNext?.Title ?? "null"}");
+                // System.Console.WriteLine($"Equal: {currentNode.Title}.NextMusicFile == expectedNext {expectedNext?.Title ?? "null"}");
 
                 index++;
                 currentNode = currentNode.NextMusicFile;
