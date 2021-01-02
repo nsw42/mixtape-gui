@@ -17,7 +17,7 @@ namespace MixtapeGui.Models
         public string CachedIntroWavFile { get; set; }
         public string CachedOutroWavFile { get; set; }
 
-        public string Title { get; private set; }
+        public string Title { get; set; }
 
         // using seconds allows for easy json serialization
         public double DurationSeconds { get; private set; }

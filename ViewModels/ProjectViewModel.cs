@@ -110,34 +110,45 @@ namespace MixtapeGui.ViewModels
 
         public void AddConnection(MusicFile from, MusicFile to)
         {
-            // Are we inserting a file into the middle of an existing link?
-            if (to != null)
-            {
-                foreach (var mf in Project.MusicFiles)
-                {
-                    if (mf != from && mf.NextMusicFile == to)
-                    {
-                        mf.NextMusicFile = from;
-                        if (from != null)
-                        {
-                            // This should always be true
-                            from.PrevMusicFile = mf;
-                        }
-                    }
-                }
-            }
-            // Are we removing an existing link?
+            var oldPrev = to?.PrevMusicFile;
             var oldNext = from.NextMusicFile;
-            if (oldNext != null)
+
+            var beginOfInsertionChain = from;
+            while (beginOfInsertionChain != null && beginOfInsertionChain.PrevMusicFile != null)
             {
-                oldNext.PrevMusicFile = null;
+                beginOfInsertionChain = beginOfInsertionChain.PrevMusicFile;
             }
-            // Set up the desired forwards/backwards link
+
+            var endOfInsertionChain = to;
+            while (endOfInsertionChain != null && endOfInsertionChain.NextMusicFile != null)
+            {
+                endOfInsertionChain = endOfInsertionChain.NextMusicFile;
+            }
+
+            // Set from <-> to (Allowing to==null)
             from.NextMusicFile = to;
             if (to != null)
             {
                 to.PrevMusicFile = from;
             }
+
+            // Set up the link from the old previous to the beginning of the inserted chain
+            if (oldPrev != null)
+            {
+                oldPrev.NextMusicFile = beginOfInsertionChain;
+            }
+            beginOfInsertionChain.PrevMusicFile = oldPrev;
+
+            // Set up the link from the end of the inserted chain to the next
+            if (endOfInsertionChain != null)
+            {
+                endOfInsertionChain.NextMusicFile = oldNext;
+            }
+            if (oldNext != null)
+            {
+                oldNext.PrevMusicFile = endOfInsertionChain;
+            }
+
         }
     }
 }

@@ -5,6 +5,7 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <DefaultItemExcludes>$(DefaultItemExcludes);*.Tests\**</DefaultItemExcludes>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Models\" />
@@ -23,6 +24,5 @@
     <PackageReference Include="MessageBox.Avalonia" Version="0.9.6.1" />
     <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="NLayer.NAudioSupport" Version="1.1.0" />
-    <PackageReference Include="xUnit" Version="2.4.1" />
   </ItemGroup>
 </Project>
