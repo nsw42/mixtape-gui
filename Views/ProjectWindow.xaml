@@ -26,7 +26,16 @@
                     <NativeMenu>
                         <NativeMenuItem Header="Delete"
                                         Gesture="Delete"
-                                        Clicked="OnDeleteItem"/>
+                                        Clicked="OnDeleteItem"
+                                        Enabled="{Binding NonZeroSelectedItems}"/>
+                        <NativeMenuItem Header="Align left"
+                                        Gesture="CMD+L"
+                                        Clicked="OnLeftAlign"
+                                        Enabled="{Binding NonZeroSelectedItems}"/>
+                        <NativeMenuItem Header="Align right"
+                                        Gesture="CMD+R"
+                                        Clicked="OnRightAlign"
+                                        Enabled="{Binding NonZeroSelectedItems}"/>
                     </NativeMenu>
                 </NativeMenuItem.Menu>
             </NativeMenuItem> <!-- Edit -->
@@ -40,9 +49,13 @@
                 <Image Source="/Assets/pause.png" Width="20" Height="20"
                        VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Button>
-            <Button Name="AlignHorizontally" Margin="10" HorizontalAlignment="Center" Width="36" Click="OnAlignHorizontally">
-                <Image Source="/Assets/halign.png" Width="20" Height="20"
-                       VerticalAlignment="Center" HorizontalAlignment="Center" IsEnabled="{Binding NonZeroSelectedItems}"/>
+            <Button Name="AlignLeft" Margin="10" HorizontalAlignment="Center" Width="36" Click="OnLeftAlign" IsEnabled="{Binding NonZeroSelectedItems}">
+                <Image Source="/Assets/alignl.png" Width="20" Height="20"
+                       VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Button>
+            <Button Name="AlignRight" Margin="10" HorizontalAlignment="Center" Width="36" Click="OnRightAlign" IsEnabled="{Binding NonZeroSelectedItems}">
+                <Image Source="/Assets/alignr.png" Width="20" Height="20"
+                       VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Button>
         </StackPanel>
         <!-- Bottom: main content: expands to fill available space -->

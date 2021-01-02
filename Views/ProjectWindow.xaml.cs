@@ -43,14 +43,44 @@ namespace MixtapeGui.Views
             }
         }
 
-        public void OnAlignHorizontally(object sender, RoutedEventArgs args)
+        public void OnLeftAlign()
         {
             if (DataContext is ProjectViewModel viewModel)
             {
-                viewModel.AlignSelectedItemsHorizontally();
+                viewModel.LeftAlignSelectedItems();
             }
             var canvasParent = this.FindControl<UserControl>("PlaylistCanvasView");
             canvasParent.InvalidateVisual();
+        }
+
+        public void OnLeftAlign(object sender, RoutedEventArgs args)
+        {
+            OnLeftAlign();
+        }
+
+        public void OnLeftAlign(object sender, EventArgs args)
+        {
+            OnLeftAlign();
+        }
+
+        public void OnRightAlign()
+        {
+            if (DataContext is ProjectViewModel viewModel)
+            {
+                viewModel.RightAlignSelectedItems();
+            }
+            var canvasParent = this.FindControl<UserControl>("PlaylistCanvasView");
+            canvasParent.InvalidateVisual();
+        }
+
+        public void OnRightAlign(object sender, RoutedEventArgs args)
+        {
+            OnRightAlign();
+        }
+
+        public void OnRightAlign(object sender, EventArgs args)
+        {
+            OnRightAlign();
         }
     }
 }

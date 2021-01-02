@@ -207,18 +207,34 @@ namespace MixtapeGui.ViewModels
             }
         }
 
-        public void AlignHorizontally(IEnumerable<MusicFile> musicFiles)
+        private void SetAllFilesToX(IEnumerable<MusicFile> musicFiles, double x)
         {
-            double x = musicFiles.Select(x => x.CanvasX).DefaultIfEmpty(0).Min();
             foreach (var mf in musicFiles)
             {
                 mf.CanvasX = x;
             }
         }
 
-        public void AlignSelectedItemsHorizontally()
+        public void LeftAlign(IEnumerable<MusicFile> musicFiles)
         {
-            AlignHorizontally(SelectedItems);
+            double x = musicFiles.Select(x => x.CanvasX).DefaultIfEmpty(0).Min();
+            SetAllFilesToX(musicFiles, x);
+        }
+
+        public void LeftAlignSelectedItems()
+        {
+            LeftAlign(SelectedItems);
+        }
+
+        public void RightAlign(IEnumerable<MusicFile> musicFiles)
+        {
+            double x = musicFiles.Select(x => x.CanvasX).DefaultIfEmpty(0).Max();
+            SetAllFilesToX(musicFiles, x);
+        }
+
+        public void RightAlignSelectedItems()
+        {
+            RightAlign(SelectedItems);
         }
 
         public void SelectedItemsUpdated()
