@@ -283,24 +283,22 @@ namespace ViewModels.Tests
             CheckLinksInChain(new MusicFile[]{A, C, B, D});
         }
 
-        // TODO
         // This is essential to prevent problems when trying to add another link
-        // [Fact]
-        // public void TestCreatingCircularChainIsPrevented()
-        // {
-        //     // Given A <-> B <-> C
-        //     // When I connect C to A
-        //     // Then an exception is thrown
-        //     var A = new MusicFile();
-        //     var B = new MusicFile();
-        //     var C = new MusicFile();
-        //     var vm = new ProjectViewModel(new Project());
-        //     vm.AddConnection(A, B);
-        //     vm.AddConnection(B, C);
+        [Fact]
+        public void TestCreatingCircularChainIsPrevented()
+        {
+            // Given A <-> B <-> C
+            // When I connect C to A
+            // Then C <-> A <-> B
+            var A = new MusicFile(){ Title="A" };
+            var B = new MusicFile(){ Title="B" };
+            var C = new MusicFile(){ Title="C" };
+            var vm = new ProjectViewModel(new Project());
+            vm.AddConnection(A, B);
+            vm.AddConnection(B, C);
 
-        //     Assert.Throws<Exception>(() => vm.AddConnection(C, A));
-        // }
-
-
+            vm.AddConnection(C, A);
+            CheckLinksInChain(new MusicFile[]{C, A, B});
+        }
     }
 }
