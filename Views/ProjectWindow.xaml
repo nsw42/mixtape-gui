@@ -26,7 +26,16 @@
                     <NativeMenu>
                         <NativeMenuItem Header="Delete"
                                         Gesture="Delete"
-                                        Clicked="OnDeleteItem"/>
+                                        Clicked="OnDeleteItem"
+                                        Enabled="{Binding NonZeroSelectedItems}"/>
+                        <NativeMenuItem Header="Align left"
+                                        Gesture="CMD+L"
+                                        Clicked="OnLeftAlign"
+                                        Enabled="{Binding NonZeroSelectedItems}"/>
+                        <NativeMenuItem Header="Align right"
+                                        Gesture="CMD+R"
+                                        Clicked="OnRightAlign"
+                                        Enabled="{Binding NonZeroSelectedItems}"/>
                     </NativeMenu>
                 </NativeMenuItem.Menu>
             </NativeMenuItem> <!-- Edit -->
@@ -37,8 +46,16 @@
         <!-- Top: Toolbar -->
         <StackPanel DockPanel.Dock="Top" Name="Toolbar" Background="LightGray" Orientation="Horizontal" Height="44">
             <Button Name="StopPlaying" Margin="10" HorizontalAlignment="Center" Width="36" Command="{Binding StopPlayingCommand}">
-                <Image Source="/Assets/pause.png" Width="20"
-                       Height="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Image Source="/Assets/pause.png" Width="20" Height="20"
+                       VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Button>
+            <Button Name="AlignLeft" Margin="10" HorizontalAlignment="Center" Width="36" Click="OnLeftAlign" IsEnabled="{Binding NonZeroSelectedItems}">
+                <Image Source="/Assets/alignl.png" Width="20" Height="20"
+                       VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Button>
+            <Button Name="AlignRight" Margin="10" HorizontalAlignment="Center" Width="36" Click="OnRightAlign" IsEnabled="{Binding NonZeroSelectedItems}">
+                <Image Source="/Assets/alignr.png" Width="20" Height="20"
+                       VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Button>
         </StackPanel>
         <!-- Bottom: main content: expands to fill available space -->

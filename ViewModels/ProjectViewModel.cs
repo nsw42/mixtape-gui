@@ -19,6 +19,9 @@ namespace MixtapeGui.ViewModels
         } }
 
         public HashSet<MusicFile> SelectedItems = new HashSet<MusicFile>();
+        private bool nonZeroSelectedItems;
+        public bool NonZeroSelectedItems { get => nonZeroSelectedItems;
+                                           set => this.RaiseAndSetIfChanged(ref nonZeroSelectedItems, value); }
 
         public const double ScrollMargin = 100;
 
@@ -47,7 +50,7 @@ namespace MixtapeGui.ViewModels
         public ObservableCollection<MusicFile> PlacedItems { get; }
         public ObservableCollection<MusicFile> UnplacedItems { get; }
 
-        public ReactiveCommand<Unit, Unit> StopPlayingCommand {get; }
+        public ReactiveCommand<Unit, Unit> StopPlayingCommand { get; }
 
         public ProjectViewModel(Project project)
         {
@@ -202,6 +205,42 @@ namespace MixtapeGui.ViewModels
                 if (toPrev != null)
                     toPrev.NextMusicFile = from;
             }
+        }
+
+        private void SetAllFilesToX(IEnumerable<MusicFile> musicFiles, double x)
+        {
+            foreach (var mf in musicFiles)
+            {
+                mf.CanvasX = x;
+            }
+        }
+
+        public void LeftAlign(IEnumerable<MusicFile> musicFiles)
+        {
+            double x = musicFiles.Select(x => x.CanvasX).DefaultIfEmpty(0).Min();
+            SetAllFilesToX(musicFiles, x);
+        }
+
+        public void LeftAlignSelectedItems()
+        {
+            LeftAlign(SelectedItems);
+        }
+
+        public void RightAlign(IEnumerable<MusicFile> musicFiles)
+        {
+            double x = musicFiles.Select(x => x.CanvasX).DefaultIfEmpty(0).Max();
+            SetAllFilesToX(musicFiles, x);
+        }
+
+        public void RightAlignSelectedItems()
+        {
+            RightAlign(SelectedItems);
+        }
+
+        public void SelectedItemsUpdated()
+        {
+            // This method shouldn't be necessary - a switch to a dynamicdata list or similar should allow us to remove this
+            NonZeroSelectedItems = (SelectedItems.Count > 0);
         }
     }
 }

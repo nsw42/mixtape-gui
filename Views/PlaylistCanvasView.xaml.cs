@@ -167,6 +167,7 @@ namespace MixtapeGui.Views
                             // There may have been a selection but, if there was, this item isn't in it
                             viewModel.SelectedItems.Clear();
                             viewModel.SelectedItems.Add(MouseOverMusicFile);
+                            viewModel.SelectedItemsUpdated();
                         }
                         foreach (var mf in viewModel.SelectedItems)
                         {
@@ -221,7 +222,6 @@ namespace MixtapeGui.Views
                         break;
 
                     case CurrentMouseDownActionEnum.DrawingMultipleSelectBox:
-                        viewModel.SelectedItems.Clear();
                         var mousePos = e.GetPosition(this);
                         mousePos = mousePos.Transform(ScreenToCanvasTransform.Value);
                         var boundingBox = new Rect(
@@ -229,6 +229,7 @@ namespace MixtapeGui.Views
                             Math.Min(DrawingMultipleSelectStartPoint.Y, mousePos.Y),
                             Math.Max(DrawingMultipleSelectStartPoint.X, mousePos.X) - Math.Min(DrawingMultipleSelectStartPoint.X, mousePos.X),
                             Math.Max(DrawingMultipleSelectStartPoint.Y, mousePos.Y) - Math.Min(DrawingMultipleSelectStartPoint.Y, mousePos.Y));
+                        viewModel.SelectedItems.Clear();
                         foreach (var mf in viewModel.PlacedItems)
                         {
                             var mfRect = new Rect(mf.CanvasPosition, DrawSize);
@@ -237,6 +238,7 @@ namespace MixtapeGui.Views
                                 viewModel.SelectedItems.Add(mf);
                             }
                         }
+                        viewModel.SelectedItemsUpdated();
                         break;
                 }
             }

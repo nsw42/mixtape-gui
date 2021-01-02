@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using MixtapeGui.Services;
 using MixtapeGui.ViewModels;
@@ -40,6 +41,46 @@ namespace MixtapeGui.Views
                     viewModel.RemoveFile(mf);
                 }
             }
+        }
+
+        public void OnLeftAlign()
+        {
+            if (DataContext is ProjectViewModel viewModel)
+            {
+                viewModel.LeftAlignSelectedItems();
+            }
+            var canvasParent = this.FindControl<UserControl>("PlaylistCanvasView");
+            canvasParent.InvalidateVisual();
+        }
+
+        public void OnLeftAlign(object sender, RoutedEventArgs args)
+        {
+            OnLeftAlign();
+        }
+
+        public void OnLeftAlign(object sender, EventArgs args)
+        {
+            OnLeftAlign();
+        }
+
+        public void OnRightAlign()
+        {
+            if (DataContext is ProjectViewModel viewModel)
+            {
+                viewModel.RightAlignSelectedItems();
+            }
+            var canvasParent = this.FindControl<UserControl>("PlaylistCanvasView");
+            canvasParent.InvalidateVisual();
+        }
+
+        public void OnRightAlign(object sender, RoutedEventArgs args)
+        {
+            OnRightAlign();
+        }
+
+        public void OnRightAlign(object sender, EventArgs args)
+        {
+            OnRightAlign();
         }
     }
 }

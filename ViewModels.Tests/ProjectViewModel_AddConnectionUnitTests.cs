@@ -5,7 +5,7 @@ using MixtapeGui.ViewModels;
 
 namespace ViewModels.Tests
 {
-    public class Tests
+    public class AddConnectionTests
     {
         // Scenarios to test relating to separate links:
         //    FROM (node, chain head, chain tail)
