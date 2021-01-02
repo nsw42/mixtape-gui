@@ -37,8 +37,12 @@
         <!-- Top: Toolbar -->
         <StackPanel DockPanel.Dock="Top" Name="Toolbar" Background="LightGray" Orientation="Horizontal" Height="44">
             <Button Name="StopPlaying" Margin="10" HorizontalAlignment="Center" Width="36" Command="{Binding StopPlayingCommand}">
-                <Image Source="/Assets/pause.png" Width="20"
-                       Height="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Image Source="/Assets/pause.png" Width="20" Height="20"
+                       VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Button>
+            <Button Name="AlignHorizontally" Margin="10" HorizontalAlignment="Center" Width="36" Click="OnAlignHorizontally">
+                <Image Source="/Assets/halign.png" Width="20" Height="20"
+                       VerticalAlignment="Center" HorizontalAlignment="Center" IsEnabled="{Binding NonZeroSelectedItems}"/>
             </Button>
         </StackPanel>
         <!-- Bottom: main content: expands to fill available space -->

@@ -167,6 +167,7 @@ namespace MixtapeGui.Views
                             // There may have been a selection but, if there was, this item isn't in it
                             viewModel.SelectedItems.Clear();
                             viewModel.SelectedItems.Add(MouseOverMusicFile);
+                            viewModel.SelectedItemsUpdated();
                         }
                         foreach (var mf in viewModel.SelectedItems)
                         {
@@ -236,6 +237,7 @@ namespace MixtapeGui.Views
                             {
                                 viewModel.SelectedItems.Add(mf);
                             }
+                            viewModel.SelectedItemsUpdated();
                         }
                         break;
                 }
