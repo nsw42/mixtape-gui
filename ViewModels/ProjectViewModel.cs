@@ -136,7 +136,12 @@ namespace MixtapeGui.ViewModels
         public void AddConnection(MusicFile from, MusicFile to)
         {
             // from must be non-null; to may be null.
-            if (to == null || AreSeparateChains(from, to))
+            if (from.NextMusicFile == to)
+            {
+                // No changes required
+                // Assert(to.PrevMusicFile == from);
+            }
+            else if (to == null || AreSeparateChains(from, to))
             {
                 var oldPrev = to?.PrevMusicFile;
                 var oldNext = from.NextMusicFile;

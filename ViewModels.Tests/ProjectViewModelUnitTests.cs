@@ -300,5 +300,22 @@ namespace ViewModels.Tests
             vm.AddConnection(C, A);
             CheckLinksInChain(new MusicFile[]{C, A, B});
         }
+
+        [Fact]
+        public void TestRecreatingExistingNodeIsIdempotent()
+        {
+            // Given A <-> B <-> C
+            // When I connect A to B
+            // Then A <-> B <-> C
+            var A = new MusicFile(){ Title="A" };
+            var B = new MusicFile(){ Title="B" };
+            var C = new MusicFile(){ Title="C" };
+            var vm = new ProjectViewModel(new Project());
+            vm.AddConnection(A, B);
+            vm.AddConnection(B, C);
+
+            vm.AddConnection(A, B);
+            CheckLinksInChain(new MusicFile[]{A, B, C});
+        }
     }
 }
