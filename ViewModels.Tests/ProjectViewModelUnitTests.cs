@@ -62,7 +62,6 @@ namespace ViewModels.Tests
             var B = new MusicFile(){ Title="B" };
             var C = new MusicFile(){ Title="C" };
             var vm = new ProjectViewModel(new Project());
-
             vm.AddConnection(B, C);
 
             vm.AddConnection(A, B);
@@ -80,7 +79,6 @@ namespace ViewModels.Tests
             var B = new MusicFile(){ Title="B" };
             var C = new MusicFile(){ Title="C" };
             var vm = new ProjectViewModel(new Project());
-
             vm.AddConnection(B, C);
 
             vm.AddConnection(A, C);
@@ -111,7 +109,6 @@ namespace ViewModels.Tests
             var B = new MusicFile(){ Title="B" };
             var C = new MusicFile(){ Title="C" };
             var vm = new ProjectViewModel(new Project());
-
             vm.AddConnection(A, B);
 
             vm.AddConnection(A, C);
@@ -130,7 +127,6 @@ namespace ViewModels.Tests
             var C = new MusicFile(){ Title="C" };
             var D = new MusicFile(){ Title="D" };
             var vm = new ProjectViewModel(new Project());
-
             vm.AddConnection(A, B);
             vm.AddConnection(C, D);
 
@@ -150,7 +146,6 @@ namespace ViewModels.Tests
             var C = new MusicFile(){ Title="C" };
             var D = new MusicFile(){ Title="D" };
             var vm = new ProjectViewModel(new Project());
-
             vm.AddConnection(A, B);
             vm.AddConnection(C, D);
 
@@ -169,6 +164,7 @@ namespace ViewModels.Tests
             var B = new MusicFile(){ Title="B" };
             var vm = new ProjectViewModel(new Project());
             vm.AddConnection(A, B);
+
             vm.AddConnection(A, null);
 
             CheckLinksInChain(new MusicFile[]{A});
@@ -185,7 +181,6 @@ namespace ViewModels.Tests
             var B = new MusicFile(){ Title="B" };
             var C = new MusicFile(){ Title="C" };
             var vm = new ProjectViewModel(new Project());
-
             vm.AddConnection(A, B);
 
             vm.AddConnection(B, C);
@@ -204,7 +199,6 @@ namespace ViewModels.Tests
             var C = new MusicFile(){ Title="C" };
             var D = new MusicFile(){ Title="D" };
             var vm = new ProjectViewModel(new Project());
-
             vm.AddConnection(A, B);
             vm.AddConnection(C, D);
 
@@ -225,7 +219,6 @@ namespace ViewModels.Tests
             var C = new MusicFile(){ Title="C" };
             var D = new MusicFile(){ Title="D" };
             var vm = new ProjectViewModel(new Project());
-
             vm.AddConnection(A, B);
             vm.AddConnection(C, D);
 
@@ -248,6 +241,46 @@ namespace ViewModels.Tests
             vm.AddConnection(B, null);
 
             CheckLinksInChain(new MusicFile[]{A, B});
+        }
+
+        [Fact]
+        public void TestSwapNodeWithNextInChain()
+        {
+            // Given A <-> B <-> C <-> D
+            // When I connect B to D
+            // Then A <-> C <-> B <-> D
+            var A = new MusicFile(){ Title="A" };
+            var B = new MusicFile(){ Title="B" };
+            var C = new MusicFile(){ Title="C" };
+            var D = new MusicFile(){ Title="D" };
+            var vm = new ProjectViewModel(new Project());
+            vm.AddConnection(A, B);
+            vm.AddConnection(B, C);
+            vm.AddConnection(C, D);
+
+            vm.AddConnection(B, D);
+
+            CheckLinksInChain(new MusicFile[]{A, C, B, D});
+        }
+
+        [Fact]
+        private void TestSwapNodeWithPrevInChain()
+        {
+            // Given A <-> B <-> C <-> D
+            // When I connect C to B
+            // Then A <-> C <-> B <-> D
+            var A = new MusicFile(){ Title="A" };
+            var B = new MusicFile(){ Title="B" };
+            var C = new MusicFile(){ Title="C" };
+            var D = new MusicFile(){ Title="D" };
+            var vm = new ProjectViewModel(new Project());
+            vm.AddConnection(A, B);
+            vm.AddConnection(B, C);
+            vm.AddConnection(C, D);
+
+            vm.AddConnection(C, B);
+
+            CheckLinksInChain(new MusicFile[]{A, C, B, D});
         }
 
         // TODO

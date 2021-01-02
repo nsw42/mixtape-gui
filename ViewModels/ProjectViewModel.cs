@@ -108,47 +108,95 @@ namespace MixtapeGui.ViewModels
             PlacedItems.Remove(musicFile);
         }
 
+        private bool AreSeparateChains(MusicFile a, MusicFile b)
+        {
+            // Is it possible to traverse (forwards or backwards) from 'a' to 'b'?
+            // Assumes a != null && b != null
+            MusicFile node = a;
+            while (node != null)
+            {
+                if (node == b)
+                {
+                    return false;
+                }
+                node = node.NextMusicFile;
+            }
+            node = a;
+            while (node != null)
+            {
+                if (node == b)
+                {
+                    return false;
+                }
+                node = node.PrevMusicFile;
+            }
+            return true;
+        }
+
         public void AddConnection(MusicFile from, MusicFile to)
         {
-            var oldPrev = to?.PrevMusicFile;
-            var oldNext = from.NextMusicFile;
-
-            var beginOfInsertionChain = from;
-            while (beginOfInsertionChain != null && beginOfInsertionChain.PrevMusicFile != null)
+            // from must be non-null; to may be null.
+            if (to == null || AreSeparateChains(from, to))
             {
-                beginOfInsertionChain = beginOfInsertionChain.PrevMusicFile;
+                var oldPrev = to?.PrevMusicFile;
+                var oldNext = from.NextMusicFile;
+
+                var beginOfInsertionChain = from;
+                while (beginOfInsertionChain != null && beginOfInsertionChain.PrevMusicFile != null)
+                {
+                    beginOfInsertionChain = beginOfInsertionChain.PrevMusicFile;
+                }
+
+                var endOfInsertionChain = to;
+                while (endOfInsertionChain != null && endOfInsertionChain.NextMusicFile != null)
+                {
+                    endOfInsertionChain = endOfInsertionChain.NextMusicFile;
+                }
+
+                // Set from <-> to (Allowing to==null)
+                from.NextMusicFile = to;
+                if (to != null)
+                {
+                    to.PrevMusicFile = from;
+                }
+
+                // Set up the link from the old previous to the beginning of the inserted chain
+                if (oldPrev != null)
+                {
+                    oldPrev.NextMusicFile = beginOfInsertionChain;
+                }
+                beginOfInsertionChain.PrevMusicFile = oldPrev;
+
+                // Set up the link from the end of the inserted chain to the next
+                if (endOfInsertionChain != null)
+                {
+                    endOfInsertionChain.NextMusicFile = oldNext;
+                }
+                if (oldNext != null)
+                {
+                    oldNext.PrevMusicFile = endOfInsertionChain;
+                }
             }
-
-            var endOfInsertionChain = to;
-            while (endOfInsertionChain != null && endOfInsertionChain.NextMusicFile != null)
+            else
             {
-                endOfInsertionChain = endOfInsertionChain.NextMusicFile;
-            }
-
-            // Set from <-> to (Allowing to==null)
-            from.NextMusicFile = to;
-            if (to != null)
-            {
+                // Both nodes are in the same chain. Different logic required.
+                // Take 'from' out of the chain, and then insert before 'to'.
+                var fromPrev = from.PrevMusicFile;
+                var fromNext = from.NextMusicFile;
+                var toPrev = to.PrevMusicFile;
+                var toNext = to.NextMusicFile;
+                // Step 1. Take 'from' out of its current position
+                if (fromPrev != null)
+                    fromPrev.NextMusicFile = fromNext;
+                if (fromNext != null)
+                    fromNext.PrevMusicFile = fromPrev;
+                // Step 2. Insert 'from' before 'to'
+                from.NextMusicFile = to;
                 to.PrevMusicFile = from;
+                from.PrevMusicFile = toPrev;
+                if (toPrev != null)
+                    toPrev.NextMusicFile = from;
             }
-
-            // Set up the link from the old previous to the beginning of the inserted chain
-            if (oldPrev != null)
-            {
-                oldPrev.NextMusicFile = beginOfInsertionChain;
-            }
-            beginOfInsertionChain.PrevMusicFile = oldPrev;
-
-            // Set up the link from the end of the inserted chain to the next
-            if (endOfInsertionChain != null)
-            {
-                endOfInsertionChain.NextMusicFile = oldNext;
-            }
-            if (oldNext != null)
-            {
-                oldNext.PrevMusicFile = endOfInsertionChain;
-            }
-
         }
     }
 }
