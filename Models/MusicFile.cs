@@ -56,8 +56,8 @@ namespace MixtapeGui.Models
                 var hash = shaM.ComputeHash(Encoding.UTF8.GetBytes(sourceFile));
                 hexdigest = BitConverter.ToString(hash).Replace("-","");
             }
-            CachedIntroWavFile = Path.Join(Project.TempDirectory, hexdigest + "_intro.wav");
-            CachedOutroWavFile = Path.Join(Project.TempDirectory, hexdigest + "_outro.wav");
+            CachedIntroWavFile = Path.Join(App.TempDirectory, hexdigest + "_intro.wav");
+            CachedOutroWavFile = Path.Join(App.TempDirectory, hexdigest + "_outro.wav");
 
             CachedIntroWavFileExists = CachedOutroWavFileExists = false;
             ImportService.ImportFile(this);
