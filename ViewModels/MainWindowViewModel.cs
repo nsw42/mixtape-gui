@@ -14,11 +14,28 @@ namespace MixtapeGui.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        List<FileDialogFilter> FileDialogFilters() {
+            return new List<FileDialogFilter> {
+                        new FileDialogFilter {
+                            Name = "Mixtape files (.mix)",
+                            Extensions = new List<string> {"mix"}
+                        },
+                        new FileDialogFilter {
+                            Name = "All files",
+                            Extensions = new List<string> {"*"}
+                        }
+                    };
+        }
+
         public MainWindowViewModel()
         {
             CreateNewProjectCommand = ReactiveCommand.CreateFromTask(async () => {
-                var dialog = new OpenFolderDialog();
-                dialog.Title = "Create New Project";
+                SaveFileDialog dialog = new SaveFileDialog {
+                    Title = "Create New Project",
+                    DefaultExtension = "mix",
+                    Filters = FileDialogFilters(),
+                    InitialFileName = "Mixtape"
+                };
 
                 if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {
@@ -32,14 +49,17 @@ namespace MixtapeGui.ViewModels
             });
 
             OpenExistingProjectCommand = ReactiveCommand.CreateFromTask(async () => {
-                var dialog = new OpenFolderDialog();
-                dialog.Title = "Open Existing Project";
+                OpenFileDialog dialog = new OpenFileDialog {
+                    Title = "Open Existing Project",
+                    AllowMultiple = false,
+                    Filters = FileDialogFilters()
+                };
 
                 if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {
                     var result = await dialog.ShowAsync(desktop.MainWindow);
-                    if (result != null) {
-                        return OpenProject(result, create: false);
+                    if (result != null && result.Length > 0) {
+                        return OpenProject(result[0], create: false);
                     }
                 }
 
@@ -73,13 +93,13 @@ namespace MixtapeGui.ViewModels
             });
         }
 
-        private Project OpenProject(string projectDir, bool create)
+        private Project OpenProject(string projectFilename, bool create)
         {
             Project project;
             if (create) {
-                project = new Project(projectDir);
+                project = new Project(projectFilename);
             } else {
-                project = IOService.LoadProject(projectDir);
+                project = IOService.LoadProject(projectFilename);
             }
             var window = new ProjectWindow
             {

@@ -86,10 +86,9 @@ namespace MixtapeGui.Services
             File.WriteAllText(project.ProjectFilename, jsonString);
         }
 
-        public static Project LoadProject(string projectDirectory)
+        public static Project LoadProject(string filename)
         {
             // Load the POCOs from json
-            string filename = Path.Join(projectDirectory, Project.ProjectContentsFileLeaf);
             string jsonString = File.ReadAllText(filename);
             var options = new JsonSerializerOptions {
                 IncludeFields = true,

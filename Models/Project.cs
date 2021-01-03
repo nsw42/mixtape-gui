@@ -5,8 +5,6 @@ namespace MixtapeGui.Models
 {
     public class Project
     {
-        public const string ProjectContentsFileLeaf = "contents.json";
-
         public string ProjectFilename { get; set; }
 
         public List<MusicFile> MusicFiles { get; set; }
