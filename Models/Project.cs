@@ -7,21 +7,18 @@ namespace MixtapeGui.Models
     {
         public const string ProjectContentsFileLeaf = "contents.json";
 
-        public string ProjectDirectory { get; set; }
-        public List<MusicFile> MusicFiles { get; set; }
+        public string ProjectFilename { get; set; }
 
-        public string contentsFile {
-            get => Path.Join(ProjectDirectory, ProjectContentsFileLeaf);
-        }
+        public List<MusicFile> MusicFiles { get; set; }
 
         public Project()
         {
             MusicFiles = new List<MusicFile>();
         }
 
-        public Project(string projdir) : this()
+        public Project(string filename) : this()
         {
-            ProjectDirectory = projdir;
+            ProjectFilename = filename;
         }
 
         public void AddMusicFile(MusicFile musicFile)

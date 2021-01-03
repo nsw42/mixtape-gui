@@ -26,20 +26,20 @@ namespace MixtapeGui.Services
 
     public class ProjectPOCO
     {
-        public string ProjectDirectory;
+        public string ProjectFilename;
         public List<MusicFilePOCO> MusicFiles;
         public List<List<MusicFilePOCO>> Connections;  // The inner list is actually a 2-tuple but json.net won't deserialize a Tuple
 
         public ProjectPOCO()
         {
-            ProjectDirectory = "";
+            ProjectFilename = "";
             MusicFiles = new List<MusicFilePOCO>();
             Connections = new List<List<MusicFilePOCO>>();
         }
 
-        public ProjectPOCO(string dir, List<MusicFilePOCO> files, List<List<MusicFilePOCO>> connections)
+        public ProjectPOCO(string filename, List<MusicFilePOCO> files, List<List<MusicFilePOCO>> connections)
         {
-            ProjectDirectory = dir;
+            ProjectFilename = filename;
             MusicFiles = files;
             Connections = connections;
         }
@@ -73,7 +73,7 @@ namespace MixtapeGui.Services
                 connections.Add(connection);
             }
             // Create the containing project POCO
-            var projectPOCO = new ProjectPOCO(project.ProjectDirectory, musicFilePocos, connections);
+            var projectPOCO = new ProjectPOCO(project.ProjectFilename, musicFilePocos, connections);
 
             // And now save the project POCO to json
             var options = new JsonSerializerOptions {
@@ -83,7 +83,7 @@ namespace MixtapeGui.Services
             };
 
             string jsonString = JsonSerializer.Serialize(projectPOCO, options);
-            File.WriteAllText(project.contentsFile, jsonString);
+            File.WriteAllText(project.ProjectFilename, jsonString);
         }
 
         public static Project LoadProject(string projectDirectory)
@@ -106,7 +106,7 @@ namespace MixtapeGui.Services
             }
             // Reconstruct the MusicFiles from the POCOs
             Project project = new Project();
-            project.ProjectDirectory = projectPOCO.ProjectDirectory;
+            project.ProjectFilename = projectPOCO.ProjectFilename;
             var pocoToMusicFileMapping = new Dictionary<MusicFilePOCO, MusicFile>();
             foreach (var mfPOCO in projectPOCO.MusicFiles)
             {
