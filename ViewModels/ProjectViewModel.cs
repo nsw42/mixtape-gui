@@ -14,8 +14,12 @@ namespace MixtapeGui.ViewModels
     {
         public Project Project { get; set; }
 
-        public string Title { get {
+        public string Filename { get {
             return Project.ProjectFilename;
+        } }
+
+        public string Title { get {
+            return Project.ProjectFilename == "" ? "Untitled" : Project.ProjectFilename;
         } }
 
         public HashSet<MusicFile> SelectedItems = new HashSet<MusicFile>();

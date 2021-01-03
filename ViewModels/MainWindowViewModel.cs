@@ -29,24 +29,7 @@ namespace MixtapeGui.ViewModels
 
         public MainWindowViewModel()
         {
-            CreateNewProjectCommand = ReactiveCommand.CreateFromTask(async () => {
-                SaveFileDialog dialog = new SaveFileDialog {
-                    Title = "Create New Project",
-                    DefaultExtension = "mix",
-                    Filters = FileDialogFilters(),
-                    InitialFileName = "Mixtape"
-                };
-
-                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-                {
-                    var result = await dialog.ShowAsync(desktop.MainWindow);
-                    if (result != null) {
-                        return OpenProject(result, create: true);
-                    }
-                }
-
-                return null;
-            });
+            CreateNewProjectCommand = ReactiveCommand.Create(() => OpenProject("", create: true));
 
             OpenExistingProjectCommand = ReactiveCommand.CreateFromTask(async () => {
                 OpenFileDialog dialog = new OpenFileDialog {
