@@ -37,7 +37,10 @@ namespace MixtapeGui.Services
                 {
                     ImportOneFile(musicFile);
                 }
-                Thread.Sleep(1000);
+                else
+                {
+                    Thread.Sleep(1000);
+                }
             }
         }
 
