@@ -98,7 +98,7 @@ namespace MixtapeGui.Views
             ScrollWidget = this.FindControl<ScrollViewer>("ScrollWidget");
             ScrollWidget.GetObservable(ScrollViewer.OffsetProperty)
                 .Subscribe(offset => {
-                    System.Diagnostics.Trace.WriteLine("Scroll changed");
+                    // System.Diagnostics.Trace.WriteLine("Scroll changed");
                     recalculateScrollTransforms.Execute().Subscribe();
                 });
 
@@ -108,7 +108,7 @@ namespace MixtapeGui.Views
                     {
                         vm.PropertyChanged += (sender, args) => {
                             if (args.PropertyName == "CanvasX0" || args.PropertyName == "CanvasY0") {
-                                System.Diagnostics.Trace.WriteLine("VM Property changed");
+                                // System.Diagnostics.Trace.WriteLine("VM Property changed");
                                 recalculateScrollTransforms.Execute().Subscribe();
                             }
                         };
@@ -126,7 +126,7 @@ namespace MixtapeGui.Views
         {
             var viewModel = DataContext as ProjectViewModel;
             var offset = ScrollWidget.Offset;
-            System.Diagnostics.Trace.WriteLine("Recalculating scroll transforms");
+            // System.Diagnostics.Trace.WriteLine("Recalculating scroll transforms");
             CanvasToScreenTransform = new TranslateTransform(-offset.X - (viewModel?.CanvasX0 ?? 0) + ProjectViewModel.ScrollMargin,
                                                                 -offset.Y - (viewModel?.CanvasY0 ?? 0) + ProjectViewModel.ScrollMargin);
             ScreenToCanvasTransform = new TranslateTransform(-CanvasToScreenTransform.X, -CanvasToScreenTransform.Y);
@@ -553,16 +553,41 @@ namespace MixtapeGui.Views
                         context.DrawLine(HighlightPen, outwardConnectionPoint, inwardConnectionPoint);
                     context.DrawLine(BlackPen, outwardConnectionPoint, inwardConnectionPoint);
 
-                    SetPlaySymbolTransformForConnection(mf, next);
-                    if (mf.CachedOutroWavFileExists && next.CachedIntroWavFileExists)
+                    if (isHighlighted)
                     {
-                        context.DrawGeometry(Brushes.Black,
-                                             isHighlighted ? HighlightPen : BlackPen,
-                                             PlaySymbol);
+                        SetPlaySymbolTransformForConnection(mf, next);
+                        if (mf.CachedOutroWavFileExists && next.CachedIntroWavFileExists)
+                        {
+                            context.DrawGeometry(Brushes.Black, HighlightPen, PlaySymbol);
+                        }
+                        else
+                        {
+                            context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                        }
                     }
                     else
                     {
-                        context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                        Point midPoint = new Point((mf.CanvasX + DrawSize.Width + next.CanvasX)/2,
+                                                   (mf.CanvasY + DrawSize.Height + next.CanvasY)/2);
+                        const double arrowLength = 10;
+
+                        double dx = next.CanvasX - (mf.CanvasX + DrawSize.Width);
+                        double dy = next.CanvasY - (mf.CanvasY + DrawSize.Height);
+                        double theta = Math.Atan2(dy, dx);
+
+                        // System.Diagnostics.Trace.WriteLine($"midPoint: {midPoint.X}, {midPoint.Y}");
+                        // System.Diagnostics.Trace.WriteLine($"dx: {dx}, dy: {dy}, theta: {theta}");
+
+                        const double arrowAngle = (Math.PI / 180) * 30;
+                        double x1 = midPoint.X - arrowLength * Math.Cos(theta - arrowAngle);
+                        double y1 = midPoint.Y - arrowLength * Math.Sin(theta - arrowAngle);
+                        // System.Diagnostics.Trace.WriteLine($"arrow1: {x1}, {y1}");
+                        context.DrawLine(BlackPen, midPoint, new Point(x1, y1));
+
+                        double x2 = midPoint.X + arrowLength * Math.Cos(Math.PI - theta - arrowAngle);
+                        double y2 = midPoint.Y - arrowLength * Math.Sin(Math.PI - theta - arrowAngle);
+                        // System.Diagnostics.Trace.WriteLine($"arrow2: {x2}, {y2}");
+                        context.DrawLine(BlackPen, midPoint, new Point(x2, y2));
                     }
                 }
             }
@@ -604,7 +629,7 @@ namespace MixtapeGui.Views
             double x1 = to.CanvasX;
             double y0 = from.CanvasY + DrawSize.Height;
             double y1 = to.CanvasY;
-            TranslateTransform playConnectionTransform = new TranslateTransform((x0+x1)/2 - PlayWidth/2,
+            TranslateTransform playConnectionTransform = new TranslateTransform((x0+x1)/2 - 2,
                                                                                 (y0+y1)/2 - PlayHeight/2);
             PlaySymbol.Transform = playConnectionTransform;
         }
