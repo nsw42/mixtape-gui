@@ -176,10 +176,12 @@ namespace MixtapeGui.Views
                         }
                         break;
                     case MouseOverSymbol.PlayIntro:
-                        AudioService.StartPlayingFile(MouseOverMusicFile.CachedIntroWavFile);
+                        if (MouseOverMusicFile.CachedIntroWavFileExists)
+                            AudioService.StartPlayingFile(MouseOverMusicFile.CachedIntroWavFile);
                         break;
                     case MouseOverSymbol.PlayOutro:
-                        AudioService.StartPlayingFile(MouseOverMusicFile.CachedOutroWavFile);
+                        if (MouseOverMusicFile.CachedOutroWavFileExists)
+                            AudioService.StartPlayingFile(MouseOverMusicFile.CachedOutroWavFile);
                         break;
                     case MouseOverSymbol.InwardConnectionPoint:
                         // TODO
@@ -189,18 +191,27 @@ namespace MixtapeGui.Views
                         DrawingConnectionFromMusicFile = MouseOverMusicFile;
                         break;
                     case MouseOverSymbol.PlayTransition:
-                        List<string> transitionFiles = new List<string> { MouseOverMusicFile.CachedOutroWavFile, MouseOverMusicFile.NextMusicFile.CachedIntroWavFile };
-                        AudioService.StartPlayingFileList(transitionFiles);
+                        if (MouseOverMusicFile.CachedOutroWavFileExists && MouseOverMusicFile.NextMusicFile.CachedIntroWavFileExists)
+                        {
+                            List<string> transitionFiles = new List<string> { MouseOverMusicFile.CachedOutroWavFile, MouseOverMusicFile.NextMusicFile.CachedIntroWavFile };
+                            AudioService.StartPlayingFileList(transitionFiles);
+                        }
                         break;
                     case MouseOverSymbol.PlayAllTransitionsInChain:
                         var chainFiles = new List<string>();
                         var currentFile = MouseOverMusicFile;
+                        bool allFilesPresent = true;
                         while (currentFile != null) {
+                            if (!currentFile.CachedIntroWavFileExists || !currentFile.CachedOutroWavFileExists) {
+                                allFilesPresent = false;
+                                break;
+                            }
                             chainFiles.Add(currentFile.CachedIntroWavFile);
                             chainFiles.Add(currentFile.CachedOutroWavFile);
                             currentFile = currentFile.NextMusicFile;
                         }
-                        AudioService.StartPlayingFileList(chainFiles);
+                        if (allFilesPresent)
+                            AudioService.StartPlayingFileList(chainFiles);
                         break;
                 }
             }
