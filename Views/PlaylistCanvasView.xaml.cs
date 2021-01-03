@@ -499,28 +499,31 @@ namespace MixtapeGui.Views
                 };
                 context.DrawText(Brushes.Black, r.TopLeft + TextOffset, t);
 
-                SetPlaySymbolTransformForIntro(mf);
-                if (mf.CachedIntroWavFileExists)
+                if (mf == MouseOverMusicFile && MouseOverElement != MouseOverSymbol.PlayTransition && MouseOverElement != MouseOverSymbol.PlayAllTransitionsInChain)
                 {
-                    context.DrawGeometry(Brushes.Black,
-                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayIntro) ? HighlightPen : BlackPen,
-                                         PlaySymbol);
-                }
-                else
-                {
-                    context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
-                }
+                    SetPlaySymbolTransformForIntro(mf);
+                    if (mf.CachedIntroWavFileExists)
+                    {
+                        context.DrawGeometry(Brushes.Black,
+                                             (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayIntro) ? HighlightPen : BlackPen,
+                                             PlaySymbol);
+                    }
+                    else
+                    {
+                        context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                    }
 
-                SetPlaySymbolTransformForOutro(mf);
-                if (mf.CachedOutroWavFileExists)
-                {
-                    context.DrawGeometry(Brushes.Black,
-                                            (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
-                                            PlaySymbol);
-                }
-                else
-                {
-                    context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                    SetPlaySymbolTransformForOutro(mf);
+                    if (mf.CachedOutroWavFileExists)
+                    {
+                        context.DrawGeometry(Brushes.Black,
+                                                (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
+                                                PlaySymbol);
+                    }
+                    else
+                    {
+                        context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                    }
                 }
 
                 SetConnectionPointSymbolTransformForInward(mf);
