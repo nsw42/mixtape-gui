@@ -62,6 +62,7 @@ namespace MixtapeGui.Views
         private readonly Size DrawSize = new Size(200, 50);
         private readonly IBrush GlaucosBrush = new ImmutableSolidColorBrush(0xff5688c7);
         private readonly Pen BlackPen = new Pen(Colors.Black.ToUint32());
+        private readonly Pen LightGrayPen = new Pen(Colors.LightGray.ToUint32());
         private readonly Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
         private Pen multipleSelectBoxPen = new Pen(Brushes.DarkBlue,
                                                    1.0,
@@ -488,14 +489,28 @@ namespace MixtapeGui.Views
                 context.DrawText(Brushes.Black, r.TopLeft + TextOffset, t);
 
                 SetPlaySymbolTransformForIntro(mf);
-                context.DrawGeometry(Brushes.Black,
-                                        (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayIntro) ? HighlightPen : BlackPen,
-                                        PlaySymbol);
+                if (mf.CachedIntroWavFileExists)
+                {
+                    context.DrawGeometry(Brushes.Black,
+                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayIntro) ? HighlightPen : BlackPen,
+                                         PlaySymbol);
+                }
+                else
+                {
+                    context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                }
 
                 SetPlaySymbolTransformForOutro(mf);
-                context.DrawGeometry(Brushes.Black,
-                                        (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
-                                        PlaySymbol);
+                if (mf.CachedOutroWavFileExists)
+                {
+                    context.DrawGeometry(Brushes.Black,
+                                            (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
+                                            PlaySymbol);
+                }
+                else
+                {
+                    context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                }
 
                 SetConnectionPointSymbolTransformForInward(mf);
                 context.DrawGeometry(Brushes.MediumTurquoise,
@@ -525,9 +540,16 @@ namespace MixtapeGui.Views
                     context.DrawLine(BlackPen, outwardConnectionPoint, inwardConnectionPoint);
 
                     SetPlaySymbolTransformForConnection(mf, next);
-                    context.DrawGeometry(Brushes.Black,
-                                         isHighlighted ? HighlightPen : BlackPen,
-                                         PlaySymbol);
+                    if (mf.CachedOutroWavFileExists && next.CachedIntroWavFileExists)
+                    {
+                        context.DrawGeometry(Brushes.Black,
+                                             isHighlighted ? HighlightPen : BlackPen,
+                                             PlaySymbol);
+                    }
+                    else
+                    {
+                        context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                    }
                 }
             }
 
