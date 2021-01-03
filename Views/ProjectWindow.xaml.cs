@@ -25,7 +25,7 @@ namespace MixtapeGui.Views
         {
             if (DataContext is ProjectViewModel viewModel)
             {
-                IOService.SaveProject(viewModel.Project);
+                viewModel.Save();
             }
         }
 
@@ -42,8 +42,7 @@ namespace MixtapeGui.Views
             if (result != null) {
                 if (DataContext is ProjectViewModel viewModel)
                 {
-                    viewModel.Project.ProjectFilename = result;
-                    IOService.SaveProject(viewModel.Project);
+                    viewModel.SaveAs(result);
                 }
             }
         }

@@ -14,13 +14,17 @@ namespace MixtapeGui.ViewModels
     {
         public Project Project { get; set; }
 
-        public string Filename { get {
-            return Project.ProjectFilename;
-        } }
+        private string filename;
+        public string Filename { get => filename;
+                                 set {
+                                    this.RaiseAndSetIfChanged(ref filename, value);
+                                    Title = (filename == "" ? "Untitled" : filename);
+                                 }
+        }
 
-        public string Title { get {
-            return Project.ProjectFilename == "" ? "Untitled" : Project.ProjectFilename;
-        } }
+        private string title;
+        public string Title { get => title;
+                              set => this.RaiseAndSetIfChanged(ref title, value); }
 
         public HashSet<MusicFile> SelectedItems = new HashSet<MusicFile>();
         private bool nonZeroSelectedItems;
@@ -59,6 +63,7 @@ namespace MixtapeGui.ViewModels
         public ProjectViewModel(Project project)
         {
             Project = project;
+            Filename = project.ProjectFilename;
 
             visibleWidth = this
                 .WhenAnyValue(vm => vm.CanvasX0, vm => vm.CanvasX1,
@@ -245,6 +250,18 @@ namespace MixtapeGui.ViewModels
         {
             // This method shouldn't be necessary - a switch to a dynamicdata list or similar should allow us to remove this
             NonZeroSelectedItems = (SelectedItems.Count > 0);
+        }
+
+        public void Save()
+        {
+            IOService.SaveProject(Project);
+        }
+
+        public void SaveAs(string fn)
+        {
+            Filename = fn;
+            Project.ProjectFilename = fn;
+            IOService.SaveProject(Project);
         }
     }
 }
