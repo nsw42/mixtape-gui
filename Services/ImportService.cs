@@ -57,12 +57,12 @@ namespace MixtapeGui.Services
                 // So convert the whole file, extract the fragments, then delete the temporary file
                 // Also, create fragments to temporary files in case the thread gets killed while
                 // we're writing the fragment
-                string tmpWav = Path.Join(musicFile.Project.TempDirectory, "tmp.wav");
+                string tmpWav = Path.Join(App.TempDirectory, "tmp.wav");
                 if (File.Exists(tmpWav)) {
                     File.Delete(tmpWav);
                 }
 
-                string tmp2 = Path.Join(musicFile.Project.TempDirectory, "tmp2.wav");
+                string tmp2 = Path.Join(App.TempDirectory, "tmp2.wav");
                 if (File.Exists(tmp2)) {
                     File.Delete(tmp2);
                 }
