@@ -7,17 +7,9 @@ namespace MixtapeGui.Models
     {
         public const string ProjectContentsFileLeaf = "contents.json";
 
-        private string projectDirectory;
-        public string ProjectDirectory { get => projectDirectory;
-            set {
-                projectDirectory = value;
-                TempDirectory = Path.Join(projectDirectory, "tmp");
-                if (!Directory.Exists(TempDirectory)) {
-                    Directory.CreateDirectory(TempDirectory);
-                }
-            }
-        }
-        public string TempDirectory { get; private set; }
+        public string TempDirectory = Path.Join(Path.GetTempPath(), "mixtape");
+
+        public string ProjectDirectory { get; set; }
         public List<MusicFile> MusicFiles { get; set; }
 
         public string contentsFile {
@@ -27,6 +19,10 @@ namespace MixtapeGui.Models
         public Project()
         {
             MusicFiles = new List<MusicFile>();
+            if (!Directory.Exists(TempDirectory))
+            {
+                Directory.CreateDirectory(TempDirectory);
+            }
         }
 
         public Project(string projdir) : this()

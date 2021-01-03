@@ -1,6 +1,8 @@
 
 using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using Avalonia;
 using MixtapeGui.Services;
 
@@ -48,8 +50,14 @@ namespace MixtapeGui.Models
 
             Title = Path.GetFileNameWithoutExtension(sourceFile); // TODO: Get the actual song title from the id3
 
-            CachedIntroWavFile = Path.Join(Project.TempDirectory, Title + "_intro.wav");
-            CachedOutroWavFile = Path.Join(Project.TempDirectory, Title + "_outro.wav");
+            string hexdigest;
+            using (SHA512 shaM = new SHA512Managed())
+            {
+                var hash = shaM.ComputeHash(Encoding.UTF8.GetBytes(sourceFile));
+                hexdigest = BitConverter.ToString(hash).Replace("-","");
+            }
+            CachedIntroWavFile = Path.Join(Project.TempDirectory, hexdigest + "_intro.wav");
+            CachedOutroWavFile = Path.Join(Project.TempDirectory, hexdigest + "_outro.wav");
 
             CachedIntroWavFileExists = CachedOutroWavFileExists = false;
             ImportService.ImportFile(this);
