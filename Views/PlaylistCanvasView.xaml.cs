@@ -62,6 +62,7 @@ namespace MixtapeGui.Views
         private readonly Size DrawSize = new Size(200, 50);
         private readonly IBrush GlaucosBrush = new ImmutableSolidColorBrush(0xff5688c7);
         private readonly Pen BlackPen = new Pen(Colors.Black.ToUint32());
+        private readonly Pen LightGrayPen = new Pen(Colors.LightGray.ToUint32());
         private readonly Pen HighlightPen = new Pen(Colors.Yellow.ToUint32(), thickness: 3);
         private Pen multipleSelectBoxPen = new Pen(Brushes.DarkBlue,
                                                    1.0,
@@ -175,10 +176,12 @@ namespace MixtapeGui.Views
                         }
                         break;
                     case MouseOverSymbol.PlayIntro:
-                        AudioService.StartPlayingFile(MouseOverMusicFile.CachedIntroWavFile);
+                        if (MouseOverMusicFile.CachedIntroWavFileExists)
+                            AudioService.StartPlayingFile(MouseOverMusicFile.CachedIntroWavFile);
                         break;
                     case MouseOverSymbol.PlayOutro:
-                        AudioService.StartPlayingFile(MouseOverMusicFile.CachedOutroWavFile);
+                        if (MouseOverMusicFile.CachedOutroWavFileExists)
+                            AudioService.StartPlayingFile(MouseOverMusicFile.CachedOutroWavFile);
                         break;
                     case MouseOverSymbol.InwardConnectionPoint:
                         // TODO
@@ -188,18 +191,27 @@ namespace MixtapeGui.Views
                         DrawingConnectionFromMusicFile = MouseOverMusicFile;
                         break;
                     case MouseOverSymbol.PlayTransition:
-                        List<string> transitionFiles = new List<string> { MouseOverMusicFile.CachedOutroWavFile, MouseOverMusicFile.NextMusicFile.CachedIntroWavFile };
-                        AudioService.StartPlayingFileList(transitionFiles);
+                        if (MouseOverMusicFile.CachedOutroWavFileExists && MouseOverMusicFile.NextMusicFile.CachedIntroWavFileExists)
+                        {
+                            List<string> transitionFiles = new List<string> { MouseOverMusicFile.CachedOutroWavFile, MouseOverMusicFile.NextMusicFile.CachedIntroWavFile };
+                            AudioService.StartPlayingFileList(transitionFiles);
+                        }
                         break;
                     case MouseOverSymbol.PlayAllTransitionsInChain:
                         var chainFiles = new List<string>();
                         var currentFile = MouseOverMusicFile;
+                        bool allFilesPresent = true;
                         while (currentFile != null) {
+                            if (!currentFile.CachedIntroWavFileExists || !currentFile.CachedOutroWavFileExists) {
+                                allFilesPresent = false;
+                                break;
+                            }
                             chainFiles.Add(currentFile.CachedIntroWavFile);
                             chainFiles.Add(currentFile.CachedOutroWavFile);
                             currentFile = currentFile.NextMusicFile;
                         }
-                        AudioService.StartPlayingFileList(chainFiles);
+                        if (allFilesPresent)
+                            AudioService.StartPlayingFileList(chainFiles);
                         break;
                 }
             }
@@ -488,14 +500,28 @@ namespace MixtapeGui.Views
                 context.DrawText(Brushes.Black, r.TopLeft + TextOffset, t);
 
                 SetPlaySymbolTransformForIntro(mf);
-                context.DrawGeometry(Brushes.Black,
-                                        (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayIntro) ? HighlightPen : BlackPen,
-                                        PlaySymbol);
+                if (mf.CachedIntroWavFileExists)
+                {
+                    context.DrawGeometry(Brushes.Black,
+                                         (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayIntro) ? HighlightPen : BlackPen,
+                                         PlaySymbol);
+                }
+                else
+                {
+                    context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                }
 
                 SetPlaySymbolTransformForOutro(mf);
-                context.DrawGeometry(Brushes.Black,
-                                        (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
-                                        PlaySymbol);
+                if (mf.CachedOutroWavFileExists)
+                {
+                    context.DrawGeometry(Brushes.Black,
+                                            (mf == MouseOverMusicFile && MouseOverElement == MouseOverSymbol.PlayOutro) ? HighlightPen : BlackPen,
+                                            PlaySymbol);
+                }
+                else
+                {
+                    context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                }
 
                 SetConnectionPointSymbolTransformForInward(mf);
                 context.DrawGeometry(Brushes.MediumTurquoise,
@@ -525,9 +551,16 @@ namespace MixtapeGui.Views
                     context.DrawLine(BlackPen, outwardConnectionPoint, inwardConnectionPoint);
 
                     SetPlaySymbolTransformForConnection(mf, next);
-                    context.DrawGeometry(Brushes.Black,
-                                         isHighlighted ? HighlightPen : BlackPen,
-                                         PlaySymbol);
+                    if (mf.CachedOutroWavFileExists && next.CachedIntroWavFileExists)
+                    {
+                        context.DrawGeometry(Brushes.Black,
+                                             isHighlighted ? HighlightPen : BlackPen,
+                                             PlaySymbol);
+                    }
+                    else
+                    {
+                        context.DrawGeometry(Brushes.LightGray, LightGrayPen, PlaySymbol);
+                    }
                 }
             }
 
