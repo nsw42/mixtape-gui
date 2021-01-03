@@ -14,7 +14,7 @@ namespace MixtapeGui.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        List<FileDialogFilter> FileDialogFilters() {
+        public static List<FileDialogFilter> FileDialogFilters() {
             return new List<FileDialogFilter> {
                         new FileDialogFilter {
                             Name = "Mixtape files (.mix)",
