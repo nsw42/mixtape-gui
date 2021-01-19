@@ -26,20 +26,17 @@ namespace MixtapeGui.Services
 
     public class ProjectPOCO
     {
-        public string ProjectFilename;
         public List<MusicFilePOCO> MusicFiles;
         public List<List<MusicFilePOCO>> Connections;  // The inner list is actually a 2-tuple but json.net won't deserialize a Tuple
 
         public ProjectPOCO()
         {
-            ProjectFilename = "";
             MusicFiles = new List<MusicFilePOCO>();
             Connections = new List<List<MusicFilePOCO>>();
         }
 
-        public ProjectPOCO(string filename, List<MusicFilePOCO> files, List<List<MusicFilePOCO>> connections)
+        public ProjectPOCO(List<MusicFilePOCO> files, List<List<MusicFilePOCO>> connections)
         {
-            ProjectFilename = filename;
             MusicFiles = files;
             Connections = connections;
         }
@@ -73,7 +70,7 @@ namespace MixtapeGui.Services
                 connections.Add(connection);
             }
             // Create the containing project POCO
-            var projectPOCO = new ProjectPOCO(project.ProjectFilename, musicFilePocos, connections);
+            var projectPOCO = new ProjectPOCO(musicFilePocos, connections);
 
             // And now save the project POCO to json
             var options = new JsonSerializerOptions {
@@ -105,7 +102,7 @@ namespace MixtapeGui.Services
             }
             // Reconstruct the MusicFiles from the POCOs
             Project project = new Project();
-            project.ProjectFilename = projectPOCO.ProjectFilename;
+            project.ProjectFilename = filename;
             var pocoToMusicFileMapping = new Dictionary<MusicFilePOCO, MusicFile>();
             foreach (var mfPOCO in projectPOCO.MusicFiles)
             {

@@ -12,6 +12,7 @@ namespace MixtapeGui.Models
         public Project()
         {
             MusicFiles = new List<MusicFile>();
+            ProjectFilename = "";
         }
 
         public Project(string filename) : this()

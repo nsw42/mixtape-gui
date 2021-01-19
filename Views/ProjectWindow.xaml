@@ -13,7 +13,11 @@
                     <NativeMenu>
                         <NativeMenuItem Header="Save"
                                         Gesture="CMD+S"
-                                        Clicked="OnSaveClicked" />
+                                        Clicked="OnSaveClicked"
+                                        Enabled="{Binding !!Filename.Length}"/>
+                        <NativeMenuItem Header="Save As"
+                                        Gesture="CMD+Shift+S"
+                                        Clicked="OnSaveAsClicked"/>
                         <NativeMenuItemSeperator/>
                         <NativeMenuItem Header="Close Window"
                                         Gesture="CMD+W"

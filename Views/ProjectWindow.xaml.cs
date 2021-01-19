@@ -1,5 +1,7 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using MixtapeGui.Services;
@@ -23,7 +25,25 @@ namespace MixtapeGui.Views
         {
             if (DataContext is ProjectViewModel viewModel)
             {
-                IOService.SaveProject(viewModel.Project);
+                viewModel.Save();
+            }
+        }
+
+        public async void OnSaveAsClicked(object sender, EventArgs args)
+        {
+            SaveFileDialog dialog = new SaveFileDialog {
+                Title = "Create New Project",
+                DefaultExtension = "mix",
+                Filters = MainWindowViewModel.FileDialogFilters(),
+                InitialFileName = "Mixtape"
+            };
+
+            var result = await dialog.ShowAsync(this);
+            if (result != null) {
+                if (DataContext is ProjectViewModel viewModel)
+                {
+                    viewModel.SaveAs(result);
+                }
             }
         }
 
