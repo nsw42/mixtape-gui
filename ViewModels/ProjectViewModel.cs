@@ -22,6 +22,8 @@ namespace MixtapeGui.ViewModels
                                  }
         }
 
+        // TODO: Trying to have the Title be an ObservableAsPropertyHelper results in a null
+        // exception, even though we really just want the VM title to be the same as Project.Filename
         private string title;
         public string Title { get => title;
                               set => this.RaiseAndSetIfChanged(ref title, value); }
